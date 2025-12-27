@@ -13,12 +13,16 @@ interface Question {
   position: number;
 }
 
+// Treble clef: Lines from bottom to top are E4, G4, B4, D5, F5
+// Position 1 = bottom line (E4), position 9 = top line (F5)
 const TREBLE_POSITIONS: Record<string, number> = {
-  E4: 0, F4: 1, G4: 2, A4: 3, B4: 4, C5: 5, D5: 6, E5: 7, F5: 8, G5: 9,
+  E4: 1, F4: 2, G4: 3, A4: 4, B4: 5, C5: 6, D5: 7, E5: 8, F5: 9,
 };
 
+// Bass clef: Lines from bottom to top are G2, B2, D3, F3, A3
+// Position 1 = bottom line (G2), position 9 = top line (A3)
 const BASS_POSITIONS: Record<string, number> = {
-  G2: 0, A2: 1, B2: 2, C3: 3, D3: 4, E3: 5, F3: 6, G3: 7, A3: 8, B3: 9,
+  G2: 1, A2: 2, B2: 3, C3: 4, D3: 5, E3: 6, F3: 7, G3: 8, A3: 9,
 };
 
 function generateQuestion(): Question {
@@ -39,14 +43,15 @@ function StaffNote({ position, clef }: { position: number; clef: "treble" | "bas
   const staffTop = 20;
   const noteY = staffTop + (9 - position) * (lineSpacing / 2);
 
+  // Ledger lines for notes outside the staff
   const ledgerLines = [];
-  if (position < 0) {
-    for (let i = 0; i >= position; i -= 2) {
+  if (position < 1) {
+    for (let i = 1; i >= position; i -= 2) {
       ledgerLines.push(staffTop + (9 - i) * (lineSpacing / 2));
     }
   }
-  if (position > 8) {
-    for (let i = 10; i <= position; i += 2) {
+  if (position > 9) {
+    for (let i = 11; i <= position; i += 2) {
       ledgerLines.push(staffTop + (9 - i) * (lineSpacing / 2));
     }
   }
