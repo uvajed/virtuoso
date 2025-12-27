@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { PitchDetector } from "pitchfinder";
+import PitchFinder from "pitchfinder";
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -52,7 +52,7 @@ export function usePitchDetection() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const detectorRef = useRef<ReturnType<typeof PitchDetector.forFloat32Array> | null>(null);
+  const detectorRef = useRef<ReturnType<typeof PitchFinder.YIN> | null>(null);
 
   const cleanup = useCallback(() => {
     if (animationFrameRef.current) {
@@ -104,8 +104,8 @@ export function usePitchDetection() {
       const source = audioContext.createMediaStreamSource(stream);
       source.connect(analyser);
 
-      // Initialize pitch detector
-      detectorRef.current = PitchDetector.forFloat32Array(analyser.fftSize);
+      // Initialize pitch detector (YIN algorithm)
+      detectorRef.current = PitchFinder.YIN({ sampleRate: audioContext.sampleRate });
 
       setState((prev) => ({ ...prev, isListening: true }));
 
