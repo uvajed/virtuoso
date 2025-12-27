@@ -1,0 +1,351 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============ USER & AUTH ============
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  profile          UserProfile?
+  progress         UserProgress[]
+  achievements     UserAchievement[]
+  practiceSessions PracticeSession[]
+  streaks          Streak[]
+  goals            UserGoal[]
+  exerciseAttempts ExerciseAttempt[]
+  lessonProgress   LessonProgress[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model UserProfile {
+  id                   String      @id @default(cuid())
+  userId               String      @unique
+  skillLevel           SkillLevel  @default(BEGINNER)
+  primaryInstrument    Instrument?
+  secondaryInstruments Instrument[]
+  timezone             String?
+  weeklyGoalMinutes    Int         @default(120)
+  dailyReminderTime    String?
+  soundEnabled         Boolean     @default(true)
+  theme                String      @default("system")
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum Instrument {
+  PIANO
+  GUITAR
+  VOICE
+  BASS
+  DRUMS
+  VIOLIN
+  OTHER
+}
+
+// ============ CONTENT & LESSONS ============
+
+model Module {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  order       Int
+  iconName    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lessons Lesson[]
+}
+
+model Lesson {
+  id          String     @id @default(cuid())
+  moduleId    String
+  title       String
+  slug        String
+  description String?
+  content     Json
+  order       Int
+  difficulty  SkillLevel
+  duration    Int
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  module       Module           @relation(fields: [moduleId], references: [id])
+  exercises    Exercise[]
+  userProgress LessonProgress[]
+
+  @@unique([moduleId, slug])
+}
+
+model LessonProgress {
+  id             String       @id @default(cuid())
+  userId         String
+  lessonId       String
+  status         LessonStatus @default(NOT_STARTED)
+  completedAt    DateTime?
+  timeSpent      Int          @default(0)
+  lastAccessedAt DateTime     @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+enum LessonStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ============ EXERCISES & QUIZZES ============
+
+model Exercise {
+  id           String       @id @default(cuid())
+  lessonId     String?
+  type         ExerciseType
+  title        String
+  description  String?
+  config       Json
+  difficulty   SkillLevel
+  pointsReward Int          @default(10)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  lesson   Lesson?           @relation(fields: [lessonId], references: [id])
+  attempts ExerciseAttempt[]
+}
+
+enum ExerciseType {
+  // Theory
+  THEORY_QUIZ
+  NOTE_IDENTIFICATION
+  SCALE_IDENTIFICATION
+  CHORD_IDENTIFICATION
+  KEY_IDENTIFICATION
+
+  // Ear Training
+  INTERVAL_RECOGNITION
+  CHORD_RECOGNITION_AUDIO
+  MELODY_DICTATION
+  RHYTHM_DICTATION
+
+  // Piano
+  PIANO_NOTE_READING
+  PIANO_CHORD_PRACTICE
+  PIANO_SIGHT_READING
+
+  // Guitar
+  GUITAR_CHORD_PRACTICE
+  GUITAR_TAB_READING
+  GUITAR_STRUMMING
+
+  // Voice
+  PITCH_MATCHING
+  VOCAL_RANGE_TEST
+  BREATHING_EXERCISE
+}
+
+model ExerciseAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  exerciseId  String
+  score       Int
+  answers     Json?
+  timeSpent   Int
+  completedAt DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([userId, exerciseId])
+}
+
+// ============ PROGRESS & GAMIFICATION ============
+
+model UserProgress {
+  id             String           @id @default(cuid())
+  userId         String
+  category       ProgressCategory
+  subcategory    String?
+  level          Int              @default(1)
+  xp             Int              @default(0)
+  totalExercises Int              @default(0)
+  correctAnswers Int              @default(0)
+  updatedAt      DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category, subcategory])
+}
+
+enum ProgressCategory {
+  THEORY
+  EAR_TRAINING
+  PIANO
+  GUITAR
+  VOICE
+  SIGHT_READING
+  RHYTHM
+}
+
+model Achievement {
+  id           String              @id @default(cuid())
+  name         String
+  slug         String              @unique
+  description  String
+  iconName     String
+  category     AchievementCategory
+  criteria     Json
+  pointsReward Int                 @default(0)
+  isSecret     Boolean             @default(false)
+  createdAt    DateTime            @default(now())
+
+  userAchievements UserAchievement[]
+}
+
+enum AchievementCategory {
+  PRACTICE
+  STREAK
+  MASTERY
+  THEORY
+  EAR_TRAINING
+  INSTRUMENT
+  MILESTONE
+  SOCIAL
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+}
+
+model Streak {
+  id               String     @id @default(cuid())
+  userId           String
+  type             StreakType
+  currentStreak    Int        @default(0)
+  longestStreak    Int        @default(0)
+  lastActivityDate DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+}
+
+enum StreakType {
+  DAILY_PRACTICE
+  WEEKLY_GOAL
+  PERFECT_SCORE
+}
+
+model UserGoal {
+  id           String         @id @default(cuid())
+  userId       String
+  title        String
+  description  String?
+  targetType   GoalTargetType
+  targetValue  Int
+  currentValue Int            @default(0)
+  deadline     DateTime?
+  isCompleted  Boolean        @default(false)
+  completedAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum GoalTargetType {
+  PRACTICE_MINUTES
+  EXERCISES_COMPLETED
+  LESSONS_COMPLETED
+  DAYS_STREAK
+  XP_EARNED
+}
+
+// ============ PRACTICE SESSIONS ============
+
+model PracticeSession {
+  id        String    @id @default(cuid())
+  userId    String
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  duration  Int?
+  module    String?
+  notes     String?
+  bpm       Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+}
