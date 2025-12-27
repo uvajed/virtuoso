@@ -35,6 +35,25 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  // Open Graph for Facebook, LinkedIn, etc.
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://music-virtuoso.vercel.app",
+    siteName: "Virtuoso",
+    title: "Virtuoso - Master Music Theory & Train Your Ear",
+    description:
+      "Become a virtuoso with our comprehensive music practice platform. Learn theory, train your ear, and master instruments with interactive exercises.",
+  },
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: "Virtuoso - Master Music Theory & Train Your Ear",
+    description:
+      "Become a virtuoso with our comprehensive music practice platform. Learn theory, train your ear, and master instruments.",
+  },
+  // Meta base for absolute URLs
+  metadataBase: new URL("https://music-virtuoso.vercel.app"),
 };
 
 export const viewport: Viewport = {
