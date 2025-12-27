@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
-
-const NOTE_FREQUENCIES: Record<string, number> = {
-  C3: 130.81, "C#3": 138.59, D3: 146.83, "D#3": 155.56, E3: 164.81, F3: 174.61, "F#3": 185.00, G3: 196.00, "G#3": 207.65, A3: 220.00, "A#3": 233.08, B3: 246.94,
-  C4: 261.63, "C#4": 277.18, D4: 293.66, "D#4": 311.13, E4: 329.63, F4: 349.23, "F#4": 369.99, G4: 392.00, "G#4": 415.30, A4: 440.00, "A#4": 466.16, B4: 493.88,
-  C5: 523.25, "C#5": 554.37, D5: 587.33, "D#5": 622.25, E5: 659.25, F5: 698.46, "F#5": 739.99, G5: 783.99, "G#5": 830.61, A5: 880.00, "A#5": 932.33, B5: 987.77,
-  C6: 1046.50,
-};
+import { Loader2 } from "lucide-react";
+import {
+  initPiano,
+  playPianoNote,
+  stopPianoNote,
+  isPianoLoaded,
+  isPianoLoading,
+} from "@/lib/piano";
 
 const KEYBOARD_MAP: Record<string, string> = {
   a: "C4", w: "C#4", s: "D4", e: "D#4", d: "E4", f: "F4", t: "F#4",
@@ -61,54 +62,40 @@ function PianoKey({ note, isBlack, isActive, onPress, onRelease, keyboardKey }: 
 
 export function VirtualPiano() {
   const [activeNotes, setActiveNotes] = useState<Set<string>>(new Set());
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const oscillatorsRef = useRef<Map<string, OscillatorNode>>(new Map());
-  const gainNodesRef = useRef<Map<string, GainNode>>(new Map());
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Initialize piano samples on mount
+  useEffect(() => {
+    const loadPiano = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError(null);
+        await initPiano();
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to load piano:", error);
+        setLoadError("Failed to load piano sounds. Please refresh the page.");
+        setIsLoading(false);
+      }
+    };
+
+    if (!isPianoLoaded() && !isPianoLoading()) {
+      loadPiano();
+    } else if (isPianoLoaded()) {
+      setIsLoading(false);
+    }
+  }, []);
 
   const playNote = useCallback((note: string) => {
-    if (!NOTE_FREQUENCIES[note]) return;
+    if (!isPianoLoaded()) return;
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext();
-    }
-
-    const ctx = audioContextRef.current;
-
-    if (oscillatorsRef.current.has(note)) return;
-
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-
-    oscillator.type = "triangle";
-    oscillator.frequency.value = NOTE_FREQUENCIES[note];
-
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.02);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    oscillator.start();
-
-    oscillatorsRef.current.set(note, oscillator);
-    gainNodesRef.current.set(note, gainNode);
-
+    playPianoNote(note);
     setActiveNotes((prev) => new Set([...prev, note]));
   }, []);
 
   const stopNote = useCallback((note: string) => {
-    const oscillator = oscillatorsRef.current.get(note);
-    const gainNode = gainNodesRef.current.get(note);
-
-    if (oscillator && gainNode && audioContextRef.current) {
-      gainNode.gain.linearRampToValueAtTime(0, audioContextRef.current.currentTime + 0.1);
-      setTimeout(() => {
-        oscillator.stop();
-        oscillatorsRef.current.delete(note);
-        gainNodesRef.current.delete(note);
-      }, 100);
-    }
-
+    stopPianoNote(note);
     setActiveNotes((prev) => {
       const next = new Set(prev);
       next.delete(note);
@@ -151,10 +138,25 @@ export function VirtualPiano() {
       <CardHeader>
         <CardTitle>Virtual Piano</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Click keys or use your keyboard (A-L for white keys, W-P for black keys)
+          {isLoading
+            ? "Loading piano sounds..."
+            : "Click keys or use your keyboard (A-L for white keys, W-P for black keys)"}
         </p>
       </CardHeader>
       <CardContent>
+        {isLoading && (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-3">Loading Salamander Grand Piano samples...</span>
+          </div>
+        )}
+        {loadError && (
+          <div className="flex items-center justify-center py-8 text-red-500">
+            {loadError}
+          </div>
+        )}
+        {!isLoading && !loadError && (
+        <>
         <div className="overflow-x-auto pb-4">
           <div className="flex justify-center min-w-max">
             {octaves.map((octave) => (
@@ -216,6 +218,8 @@ export function VirtualPiano() {
             )}
           </div>
         </div>
+        </>
+        )}
       </CardContent>
     </Card>
   );
