@@ -15,6 +15,7 @@ import {
   Music,
   Home,
   Library,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,7 @@ const navigation = [
     ],
   },
   { name: "Practice Tools", href: "/tools", icon: Wrench },
+  { name: "Progress", href: "/progress", icon: TrendingUp },
   { name: "Achievements", href: "/achievements", icon: Trophy },
 ];
 

@@ -10,3 +10,6 @@ export { MelodyDictation } from "./MelodyDictation";
 export { SightReading } from "./SightReading";
 export { FretboardTrainer } from "./FretboardTrainer";
 export { VocalRangeTest } from "./VocalRangeTest";
+export { RhythmTrainer } from "./RhythmTrainer";
+export { ScalePractice } from "./ScalePractice";
+export { ChordProgressions } from "./ChordProgressions";

@@ -22,6 +22,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import { DashboardGamification } from "@/components/dashboard/DashboardGamification";
 
 const quickActions = [
   {
@@ -196,6 +197,9 @@ export default async function DashboardPage() {
           })}
         </div>
       </div>
+
+      {/* Gamification Section */}
+      <DashboardGamification />
 
       {/* Recent Activity Placeholder */}
       <Card>

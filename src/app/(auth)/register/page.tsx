@@ -67,7 +67,8 @@ export default function RegisterPage() {
         // Registration succeeded but auto-login failed
         router.push("/login?registered=true");
       } else {
-        router.push("/dashboard");
+        // New users go to onboarding first
+        router.push("/onboarding");
         router.refresh();
       }
     } catch {

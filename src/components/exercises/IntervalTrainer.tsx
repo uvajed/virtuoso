@@ -4,7 +4,8 @@ import { useState, useCallback, useRef } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { CheckCircle, XCircle, RefreshCw, Volume2, Play } from "lucide-react";
 
-const INTERVALS = [
+// Simple intervals (within one octave)
+const SIMPLE_INTERVALS = [
   { name: "Minor 2nd", semitones: 1, description: "Jaws theme" },
   { name: "Major 2nd", semitones: 2, description: "Happy Birthday (1st 2 notes)" },
   { name: "Minor 3rd", semitones: 3, description: "Greensleeves" },
@@ -19,6 +20,25 @@ const INTERVALS = [
   { name: "Octave", semitones: 12, description: "Somewhere Over The Rainbow" },
 ];
 
+// Compound intervals (beyond one octave)
+const COMPOUND_INTERVALS = [
+  { name: "Minor 9th", semitones: 13, description: "Octave + Minor 2nd" },
+  { name: "Major 9th", semitones: 14, description: "Octave + Major 2nd" },
+  { name: "Minor 10th", semitones: 15, description: "Octave + Minor 3rd" },
+  { name: "Major 10th", semitones: 16, description: "Octave + Major 3rd" },
+  { name: "Perfect 11th", semitones: 17, description: "Octave + Perfect 4th" },
+  { name: "Augmented 11th", semitones: 18, description: "Octave + Tritone" },
+  { name: "Perfect 12th", semitones: 19, description: "Octave + Perfect 5th" },
+  { name: "Minor 13th", semitones: 20, description: "Octave + Minor 6th" },
+  { name: "Major 13th", semitones: 21, description: "Octave + Major 6th" },
+  { name: "Minor 14th", semitones: 22, description: "Octave + Minor 7th" },
+  { name: "Major 14th", semitones: 23, description: "Octave + Major 7th" },
+  { name: "Double Octave", semitones: 24, description: "Two octaves" },
+];
+
+type IntervalMode = "simple" | "compound" | "all";
+const INTERVALS = SIMPLE_INTERVALS;
+
 const BASE_FREQUENCIES: Record<string, number> = {
   C4: 261.63, "C#4": 277.18, D4: 293.66, "D#4": 311.13,
   E4: 329.63, F4: 349.23, "F#4": 369.99, G4: 392.00,
@@ -26,13 +46,22 @@ const BASE_FREQUENCIES: Record<string, number> = {
 };
 
 interface Question {
-  interval: typeof INTERVALS[number];
+  interval: typeof SIMPLE_INTERVALS[number];
   baseNote: string;
   direction: "ascending" | "descending";
 }
 
-function generateQuestion(): Question {
-  const interval = INTERVALS[Math.floor(Math.random() * INTERVALS.length)];
+function getIntervalsByMode(mode: IntervalMode) {
+  switch (mode) {
+    case "simple": return SIMPLE_INTERVALS;
+    case "compound": return COMPOUND_INTERVALS;
+    case "all": return [...SIMPLE_INTERVALS, ...COMPOUND_INTERVALS];
+  }
+}
+
+function generateQuestion(mode: IntervalMode): Question {
+  const intervals = getIntervalsByMode(mode);
+  const interval = intervals[Math.floor(Math.random() * intervals.length)];
   const notes = Object.keys(BASE_FREQUENCIES);
   const baseNote = notes[Math.floor(Math.random() * notes.length)];
   const direction = Math.random() > 0.5 ? "ascending" : "descending";
@@ -40,12 +69,15 @@ function generateQuestion(): Question {
 }
 
 export function IntervalTrainer() {
-  const [question, setQuestion] = useState<Question>(generateQuestion);
+  const [mode, setMode] = useState<IntervalMode>("simple");
+  const [question, setQuestion] = useState<Question>(() => generateQuestion("simple"));
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [showResult, setShowResult] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+
+  const currentIntervals = getIntervalsByMode(mode);
 
   const playInterval = useCallback(async () => {
     if (isPlaying) return;
@@ -140,9 +172,17 @@ export function IntervalTrainer() {
   }, [question.interval.name]);
 
   const nextQuestion = useCallback(() => {
-    setQuestion(generateQuestion());
+    setQuestion(generateQuestion(mode));
     setSelected(null);
     setShowResult(false);
+  }, [mode]);
+
+  const changeMode = useCallback((newMode: IntervalMode) => {
+    setMode(newMode);
+    setQuestion(generateQuestion(newMode));
+    setSelected(null);
+    setShowResult(false);
+    setScore({ correct: 0, total: 0 });
   }, []);
 
   const resetQuiz = useCallback(() => {
@@ -163,6 +203,21 @@ export function IntervalTrainer() {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Mode selector */}
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-sm text-muted-foreground">Mode:</span>
+          {(["simple", "compound", "all"] as const).map((m) => (
+            <Button
+              key={m}
+              size="sm"
+              variant={mode === m ? "primary" : "outline"}
+              onClick={() => changeMode(m)}
+            >
+              {m === "simple" ? "Simple" : m === "compound" ? "Compound" : "All"}
+            </Button>
+          ))}
+        </div>
+
         <div className="text-center space-y-4">
           <p className="text-sm text-muted-foreground">
             Listen to the interval and identify it:
@@ -194,7 +249,7 @@ export function IntervalTrainer() {
         </div>
 
         <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-          {INTERVALS.map((interval) => {
+          {currentIntervals.map((interval) => {
             const isSelected = selected === interval.name;
             const isAnswer = question.interval.name === interval.name;
 

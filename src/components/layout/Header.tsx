@@ -6,6 +6,7 @@ import { Menu, Music, User, LogOut, Settings, ChevronLeft, ChevronRight } from "
 import { useState } from "react";
 import { Button } from "@/components/ui";
 import { useRouter } from "next/navigation";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -58,7 +59,8 @@ export function Header({ onMenuClick }: HeaderProps) {
           )}
         </div>
 
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-2">
+          <ThemeToggle />
           {session ? (
             <div className="relative">
               <button
