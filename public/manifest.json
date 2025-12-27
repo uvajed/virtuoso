@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Virtuoso - Music Practice",
   "short_name": "Virtuoso",
   "description": "Master music theory, train your ear, and practice instruments with interactive exercises",
@@ -8,6 +9,32 @@
   "theme_color": "#1DB954",
   "orientation": "portrait-primary",
   "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "com.virtuoso.musicpractice",
+      "url": "https://play.google.com/store/apps/details?id=com.virtuoso.musicpractice"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard with practice progress"
+    },
+    {
+      "src": "/screenshots/ear-training.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ear training exercises"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
