@@ -21,22 +21,22 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg";
+      "inline-flex items-center justify-center font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 rounded-full active:scale-95";
 
     const variants = {
-      primary: "bg-primary text-primary-foreground hover:bg-primary-hover",
+      primary: "bg-primary text-primary-foreground hover:bg-primary-hover hover:scale-105",
       secondary:
-        "bg-secondary text-secondary-foreground hover:opacity-90",
+        "bg-secondary text-secondary-foreground hover:bg-[#727272]",
       outline:
-        "border-2 border-border bg-transparent hover:bg-muted text-foreground",
-      ghost: "bg-transparent hover:bg-muted text-foreground",
+        "border border-[#727272] bg-transparent hover:bg-white/10 hover:border-white text-white",
+      ghost: "bg-transparent hover:bg-white/10 text-white",
       danger: "bg-error text-error-foreground hover:opacity-90",
     };
 
     const sizes = {
-      sm: "h-8 px-3 text-sm",
-      md: "h-10 px-4 text-sm",
-      lg: "h-12 px-6 text-base",
+      sm: "h-8 px-4 text-xs tracking-wider uppercase",
+      md: "h-10 px-6 text-sm tracking-wider uppercase",
+      lg: "h-12 px-8 text-sm tracking-wider uppercase",
     };
 
     return (

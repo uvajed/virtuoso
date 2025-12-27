@@ -13,6 +13,7 @@ import {
   Flame,
   ArrowRight,
   Check,
+  Play,
 } from "lucide-react";
 
 const features = [
@@ -21,36 +22,42 @@ const features = [
     title: "Music Theory",
     description:
       "Learn notes, scales, chords, and keys with interactive lessons and quizzes.",
+    color: "from-purple-500 to-purple-700",
   },
   {
     icon: Headphones,
     title: "Ear Training",
     description:
       "Train your ear with interval recognition, chord identification, and melody dictation.",
+    color: "from-blue-500 to-blue-700",
   },
   {
     icon: Piano,
     title: "Piano Practice",
     description:
       "Interactive virtual piano with sight-reading exercises and finger exercises.",
+    color: "from-emerald-500 to-emerald-700",
   },
   {
     icon: Guitar,
     title: "Guitar Learning",
     description:
       "Chord diagrams, tab reading, strumming patterns, and fretboard visualization.",
+    color: "from-orange-500 to-orange-700",
   },
   {
     icon: Mic2,
     title: "Voice Training",
     description:
       "Pitch matching exercises, breathing techniques, and vocal range tests.",
+    color: "from-pink-500 to-pink-700",
   },
   {
     icon: Trophy,
     title: "Track Progress",
     description:
       "Earn XP, unlock achievements, and maintain streaks to stay motivated.",
+    color: "from-yellow-500 to-yellow-700",
   },
 ];
 
@@ -72,51 +79,52 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground">
-              <Music className="h-5 w-5" />
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary">
+              <Music className="h-5 w-5 text-black" />
             </div>
-            <span className="font-bold text-lg">Virtuoso</span>
+            <span className="font-bold text-xl">Virtuoso</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-6">
+            <Link href="/register">
+              <span className="text-muted-foreground hover:text-white font-bold text-sm transition-colors hidden sm:block">
+                Sign up
+              </span>
+            </Link>
             <Link href="/login">
-              <Button variant="ghost" size="sm">
+              <Button size="sm" className="px-8">
                 Log in
               </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="sm">Sign up free</Button>
             </Link>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 md:py-32">
-        <div className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-            <Flame className="h-4 w-4" />
-            Start your musical journey today
+      <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-to-b from-[#1a1a1a] via-[#121212] to-background">
+        <div className="container mx-auto px-6 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium mb-8">
+            <div className="flex items-end gap-0.5 h-3">
+              <div className="w-0.5 bg-primary rounded-full animate-pulse" style={{ height: '6px' }} />
+              <div className="w-0.5 bg-primary rounded-full animate-pulse" style={{ height: '10px', animationDelay: '0.2s' }} />
+              <div className="w-0.5 bg-primary rounded-full animate-pulse" style={{ height: '4px', animationDelay: '0.4s' }} />
+            </div>
+            <span className="text-muted-foreground">Start your musical journey today</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight max-w-4xl mx-auto">
-            Master Music Theory & Train Your Ear
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight max-w-4xl mx-auto leading-tight">
+            Music is for
+            <span className="block text-primary">everyone.</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mt-6 max-w-2xl mx-auto">
-            A comprehensive platform for learning music theory, ear training,
-            and instrument practice with interactive exercises and progress tracking.
+          <p className="text-lg md:text-xl text-muted-foreground mt-8 max-w-2xl mx-auto">
+            Master music theory, train your ear, and practice instruments with
+            interactive exercises. All in one place. All free.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
             <Link href="/register">
-              <Button size="lg" className="w-full sm:w-auto">
-                Get started for free
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                I already have an account
+              <Button size="lg" className="w-full sm:w-auto text-base px-10">
+                Get started free
               </Button>
             </Link>
           </div>
@@ -124,29 +132,34 @@ export default async function HomePage() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 bg-muted/50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold">Everything you need to learn music</h2>
-            <p className="text-muted-foreground mt-2">
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold">Everything you need to learn music</h2>
+            <p className="text-muted-foreground mt-4 text-lg">
               From theory fundamentals to advanced ear training
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={feature.title}
-                  className="bg-card rounded-xl p-6 border border-border"
+                  className="group bg-[#181818] rounded-lg p-6 hover:bg-[#282828] transition-all duration-300 cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                    <Icon className="h-6 w-6 text-primary" />
+                  <div className={`w-14 h-14 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-5 group-hover:scale-105 transition-transform`}>
+                    <Icon className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="font-semibold text-lg">{feature.title}</h3>
-                  <p className="text-muted-foreground mt-2">
+                  <h3 className="font-bold text-lg mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
                     {feature.description}
                   </p>
+                  <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                      <Play className="h-5 w-5 text-black ml-0.5" fill="black" />
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -156,62 +169,58 @@ export default async function HomePage() {
 
       {/* Benefits Section */}
       <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-bold">
-                Practice smarter, not harder
+              <h2 className="text-3xl md:text-4xl font-bold">
+                Practice smarter,
+                <span className="text-primary"> not harder</span>
               </h2>
-              <p className="text-muted-foreground mt-4">
+              <p className="text-muted-foreground mt-6 text-lg">
                 Our interactive platform adapts to your skill level and helps
                 you focus on what matters most for your musical development.
               </p>
-              <ul className="mt-8 space-y-4">
+              <ul className="mt-10 space-y-5">
                 {benefits.map((benefit) => (
-                  <li key={benefit} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="h-3 w-3 text-success" />
+                  <li key={benefit} className="flex items-start gap-4">
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="h-3.5 w-3.5 text-black" strokeWidth={3} />
                     </div>
-                    <span>{benefit}</span>
+                    <span className="text-lg">{benefit}</span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-8">
-                <Link href="/register">
-                  <Button size="lg">Start practicing now</Button>
-                </Link>
-              </div>
             </div>
-            <div className="bg-muted rounded-2xl p-8 border border-border">
+            <div className="bg-gradient-to-br from-[#282828] to-[#181818] rounded-xl p-8">
               <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border">
-                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                    <Flame className="h-5 w-5 text-orange-500" />
+                <div className="flex items-center gap-4 p-4 bg-[#121212] rounded-lg hover:bg-[#1a1a1a] transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                    <Flame className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold">7-Day Streak</p>
+                    <p className="font-bold">7-Day Streak</p>
                     <p className="text-sm text-muted-foreground">
                       Keep practicing daily!
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                    <Trophy className="h-5 w-5 text-purple-500" />
+                <div className="flex items-center gap-4 p-4 bg-[#121212] rounded-lg hover:bg-[#1a1a1a] transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                    <Trophy className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold">Achievement Unlocked</p>
+                    <p className="font-bold">Achievement Unlocked</p>
                     <p className="text-sm text-muted-foreground">
                       Perfect Score Master
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                    <Headphones className="h-5 w-5 text-emerald-500" />
+                <div className="flex items-center gap-4 p-4 bg-[#121212] rounded-lg hover:bg-[#1a1a1a] transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center">
+                    <Headphones className="h-6 w-6 text-black" />
                   </div>
                   <div>
-                    <p className="font-semibold">Ear Training Complete</p>
+                    <p className="font-bold">Ear Training Complete</p>
                     <p className="text-sm text-muted-foreground">
                       +50 XP earned
                     </p>
@@ -224,37 +233,35 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold">
+      <section className="py-24 bg-gradient-to-t from-[#1a1a1a] to-background">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-3xl md:text-5xl font-black">
             Ready to become a better musician?
           </h2>
-          <p className="mt-4 opacity-90 max-w-xl mx-auto">
-            Join thousands of musicians who are improving their skills with
+          <p className="mt-6 text-muted-foreground text-lg max-w-xl mx-auto">
+            Join musicians who are improving their skills with
             Virtuoso. It&apos;s completely free to get started.
           </p>
           <Link href="/register">
             <Button
               size="lg"
-              variant="secondary"
-              className="mt-8"
+              className="mt-10 px-12 text-base"
             >
-              Create free account
-              <ArrowRight className="ml-2 h-4 w-4" />
+              Sign up free
             </Button>
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-border">
-        <div className="container mx-auto px-4">
+      <footer className="py-10 border-t border-white/10">
+        <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-primary-foreground">
-                <Music className="h-4 w-4" />
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white">
+                <Music className="h-4 w-4 text-black" />
               </div>
-              <span className="font-semibold">Virtuoso</span>
+              <span className="font-bold">Virtuoso</span>
             </div>
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} Virtuoso. All rights reserved.

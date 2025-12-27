@@ -13,14 +13,18 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onMenuClick={() => setIsSidebarOpen(true)} />
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-      <main className="md:pl-64 pt-0">
-        <div className="p-4 md:p-6 lg:p-8">{children}</div>
-      </main>
+      <div className="md:ml-[280px]">
+        <Header onMenuClick={() => setIsSidebarOpen(true)} />
+        <main className="min-h-[calc(100vh-64px)]">
+          <div className="p-4 md:p-6 lg:p-8 bg-gradient-to-b from-[#242424] to-background">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

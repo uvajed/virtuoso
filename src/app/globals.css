@@ -1,44 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  /* Primary - Deep Blue (Musical/Professional) */
-  --primary: #4f46e5;
-  --primary-foreground: #ffffff;
-  --primary-hover: #4338ca;
+  /* Spotify-inspired Dark Theme - Always dark */
 
-  /* Secondary - Warm Accent */
-  --secondary: #f59e0b;
+  /* Primary - Spotify Green */
+  --primary: #1DB954;
+  --primary-foreground: #000000;
+  --primary-hover: #1ed760;
+
+  /* Secondary */
+  --secondary: #535353;
   --secondary-foreground: #ffffff;
 
-  /* Background & Surface */
-  --background: #fafafa;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
+  /* Background & Surface - Dark */
+  --background: #121212;
+  --foreground: #ffffff;
+  --card: #181818;
+  --card-hover: #282828;
+  --card-foreground: #ffffff;
 
   /* Muted/Subtle */
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  --muted: #282828;
+  --muted-foreground: #b3b3b3;
 
   /* Border & Input */
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #4f46e5;
+  --border: #282828;
+  --input: #3e3e3e;
+  --ring: #1DB954;
 
   /* Status Colors */
-  --success: #10b981;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #ffffff;
-  --error: #ef4444;
+  --success: #1DB954;
+  --success-foreground: #000000;
+  --warning: #ffa42b;
+  --warning-foreground: #000000;
+  --error: #f15e6c;
   --error-foreground: #ffffff;
 
-  /* Accent for gamification */
-  --accent: #8b5cf6;
-  --accent-foreground: #ffffff;
+  /* Accent */
+  --accent: #1DB954;
+  --accent-foreground: #000000;
 
-  /* Radius */
+  /* Radius - More rounded for Spotify feel */
   --radius: 0.5rem;
+  --radius-full: 9999px;
+
+  /* Elevated surfaces */
+  --surface-elevated: #242424;
 }
 
 @theme inline {
@@ -63,35 +70,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Primary stays vibrant */
-    --primary: #6366f1;
-    --primary-hover: #818cf8;
-
-    /* Secondary */
-    --secondary: #fbbf24;
-
-    /* Background & Surface - Dark theme */
-    --background: #0f172a;
-    --foreground: #f8fafc;
-    --card: #1e293b;
-    --card-foreground: #f8fafc;
-
-    /* Muted */
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
-
-    /* Border & Input */
-    --border: #334155;
-    --input: #334155;
-    --ring: #6366f1;
-
-    /* Accent */
-    --accent: #a78bfa;
-  }
-}
-
 * {
   border-color: var(--border);
 }
@@ -102,23 +80,26 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Spotify style */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--muted);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border-radius: 4px;
+  background: hsla(0, 0%, 100%, 0.3);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
+  background: hsla(0, 0%, 100%, 0.5);
+  background-clip: content-box;
 }
 
 /* Focus ring utility */
@@ -129,4 +110,44 @@ body {
 .focus-ring:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* Spotify-style hover card effect */
+.spotify-card {
+  transition: background-color 0.3s ease;
+}
+
+.spotify-card:hover {
+  background-color: var(--card-hover);
+}
+
+/* Gradient text for headings */
+.gradient-text {
+  background: linear-gradient(90deg, #1DB954, #1ed760);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtle glow effect */
+.glow {
+  box-shadow: 0 0 20px rgba(29, 185, 84, 0.3);
+}
+
+/* Playing animation bars */
+@keyframes eq-bar {
+  0%, 100% { height: 3px; }
+  50% { height: 15px; }
+}
+
+.eq-bar {
+  animation: eq-bar 0.8s ease-in-out infinite;
+}
+
+.eq-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.eq-bar:nth-child(3) {
+  animation-delay: 0.4s;
 }
