@@ -14,136 +14,131 @@ interface Question {
   position: number;
 }
 
-// Staff line positions (0 = bottom line, 4 = top line)
-// Treble clef lines from bottom to top: E4, G4, B4, D5, F5
-// Treble clef spaces from bottom to top: F4, A4, C5, E5
-const TREBLE_NOTES: { note: string; line: number }[] = [
-  { note: "E", line: 0 },   // Bottom line
-  { note: "F", line: 0.5 }, // First space
-  { note: "G", line: 1 },   // Second line
-  { note: "A", line: 1.5 }, // Second space
-  { note: "B", line: 2 },   // Middle line
-  { note: "C", line: 2.5 }, // Third space
-  { note: "D", line: 3 },   // Fourth line
-  { note: "E", line: 3.5 }, // Fourth space
-  { note: "F", line: 4 },   // Top line
+/*
+ * MUSIC STAFF NOTE REFERENCE (verified from music theory sources)
+ *
+ * TREBLE CLEF (G Clef) - The curl wraps around the G line (2nd line from bottom)
+ *   Lines (bottom to top): E - G - B - D - F  ("Every Good Boy Does Fine")
+ *   Spaces (bottom to top): F - A - C - E     ("FACE")
+ *
+ * BASS CLEF (F Clef) - The two dots surround the F line (2nd line from top)
+ *   Lines (bottom to top): G - B - D - F - A  ("Good Boys Do Fine Always")
+ *   Spaces (bottom to top): A - C - E - G     ("All Cows Eat Grass")
+ *
+ * Staff has 5 lines, numbered 1-5 from bottom to top
+ * Line 1 = bottom, Line 5 = top
+ * Spaces are between lines: Space 1 is between Line 1 and Line 2, etc.
+ */
+
+// Treble clef: EGBDF on lines, FACE in spaces
+const TREBLE_NOTES = [
+  { note: "E", staffPosition: 1, isLine: true },   // Line 1 (bottom)
+  { note: "F", staffPosition: 1, isLine: false },  // Space 1
+  { note: "G", staffPosition: 2, isLine: true },   // Line 2 (G line - clef curls here)
+  { note: "A", staffPosition: 2, isLine: false },  // Space 2
+  { note: "B", staffPosition: 3, isLine: true },   // Line 3 (middle)
+  { note: "C", staffPosition: 3, isLine: false },  // Space 3
+  { note: "D", staffPosition: 4, isLine: true },   // Line 4
+  { note: "E", staffPosition: 4, isLine: false },  // Space 4
+  { note: "F", staffPosition: 5, isLine: true },   // Line 5 (top)
 ];
 
-// Bass clef lines from bottom to top: G2, B2, D3, F3, A3
-// Bass clef spaces from bottom to top: A2, C3, E3, G3
-const BASS_NOTES: { note: string; line: number }[] = [
-  { note: "G", line: 0 },   // Bottom line
-  { note: "A", line: 0.5 }, // First space
-  { note: "B", line: 1 },   // Second line
-  { note: "C", line: 1.5 }, // Second space
-  { note: "D", line: 2 },   // Middle line
-  { note: "E", line: 2.5 }, // Third space
-  { note: "F", line: 3 },   // Fourth line
-  { note: "G", line: 3.5 }, // Fourth space
-  { note: "A", line: 4 },   // Top line
+// Bass clef: GBDFA on lines, ACEG in spaces
+const BASS_NOTES = [
+  { note: "G", staffPosition: 1, isLine: true },   // Line 1 (bottom)
+  { note: "A", staffPosition: 1, isLine: false },  // Space 1
+  { note: "B", staffPosition: 2, isLine: true },   // Line 2
+  { note: "C", staffPosition: 2, isLine: false },  // Space 2
+  { note: "D", staffPosition: 3, isLine: true },   // Line 3 (middle)
+  { note: "E", staffPosition: 3, isLine: false },  // Space 3
+  { note: "F", staffPosition: 4, isLine: true },   // Line 4 (F line - clef dots here)
+  { note: "G", staffPosition: 4, isLine: false },  // Space 4
+  { note: "A", staffPosition: 5, isLine: true },   // Line 5 (top)
 ];
+
+interface NoteData {
+  note: string;
+  staffPosition: number;
+  isLine: boolean;
+}
 
 function generateQuestion(): Question {
   const clef = Math.random() > 0.5 ? "treble" : "bass";
   const notes = clef === "treble" ? TREBLE_NOTES : BASS_NOTES;
   const randomNote = notes[Math.floor(Math.random() * notes.length)];
 
+  // Convert to y-position index (0-8 from bottom to top)
+  // Lines are at even positions: 0, 2, 4, 6, 8
+  // Spaces are at odd positions: 1, 3, 5, 7
+  const positionIndex = (randomNote.staffPosition - 1) * 2 + (randomNote.isLine ? 0 : 1);
+
   return {
     note: randomNote.note,
     clef,
-    position: randomNote.line,
+    position: positionIndex,
   };
 }
 
 function StaffNote({ position, clef }: { position: number; clef: "treble" | "bass" }) {
-  const lineSpacing = 14;
-  const staffTop = 30;
-  const staffBottom = staffTop + 4 * lineSpacing; // Bottom line Y position
+  // Staff dimensions
+  const lineSpacing = 16;  // Space between staff lines
+  const staffTop = 24;     // Y position of top line
+  const staffHeight = 4 * lineSpacing;  // Total height of staff
+  const staffBottom = staffTop + staffHeight;  // Y position of bottom line
 
-  // Calculate note Y: position 0 = bottom line, position 4 = top line
-  // Each whole number is a line, half numbers are spaces
-  const noteY = staffBottom - (position * lineSpacing);
-
-  // Ledger lines for notes below the staff (position < 0) or above (position > 4)
-  const ledgerLines: number[] = [];
-  if (position < 0) {
-    // Notes below the staff need ledger lines at positions 0, -1, -2, etc (lines only)
-    for (let i = -1; i >= Math.floor(position); i--) {
-      if (i % 1 === 0) { // Only whole numbers (lines)
-        ledgerLines.push(staffBottom - (i * lineSpacing));
-      }
-    }
-  }
-  if (position > 4) {
-    // Notes above the staff
-    for (let i = 5; i <= Math.ceil(position); i++) {
-      if (i % 1 === 0) {
-        ledgerLines.push(staffBottom - (i * lineSpacing));
-      }
-    }
-  }
+  // Calculate note Y position
+  // position 0 = on bottom line, position 8 = on top line
+  // Each increment of 1 moves up by half a line spacing
+  const noteY = staffBottom - (position * (lineSpacing / 2));
 
   return (
-    <svg width="200" height="120" className="mx-auto">
-      {/* Staff lines - drawn from top to bottom */}
-      {[0, 1, 2, 3, 4].map((i) => (
+    <svg width="220" height="110" className="mx-auto">
+      {/* Staff lines - 5 lines from top (y=staffTop) to bottom (y=staffBottom) */}
+      {[0, 1, 2, 3, 4].map((lineIndex) => (
         <line
-          key={i}
+          key={lineIndex}
           x1="20"
-          y1={staffTop + i * lineSpacing}
-          x2="180"
-          y2={staffTop + i * lineSpacing}
+          y1={staffTop + lineIndex * lineSpacing}
+          x2="200"
+          y2={staffTop + lineIndex * lineSpacing}
           stroke="currentColor"
-          strokeWidth="1.5"
+          strokeWidth="1"
         />
       ))}
 
       {/* Clef symbol */}
       {clef === "treble" ? (
-        // Treble clef - positioned so the curl wraps around the G line (2nd from bottom = index 3)
+        // Treble clef - the inner curl should be on line 2 (G line)
+        // Line 2 from bottom = line index 3 from top = y position staffTop + 3*lineSpacing
         <text
-          x="25"
-          y={staffTop + 3.35 * lineSpacing}
-          fontSize="56"
+          x="28"
+          y={staffTop + 3 * lineSpacing + 8}
+          fontSize="72"
           className="select-none"
-          style={{ fontFamily: 'serif' }}
         >
           𝄞
         </text>
       ) : (
-        // Bass clef - positioned so the dots are around the F line (2nd from top = index 1)
+        // Bass clef - the dots should be around line 4 (F line)
+        // Line 4 from bottom = line index 1 from top = y position staffTop + 1*lineSpacing
         <text
-          x="25"
-          y={staffTop + 1.5 * lineSpacing}
-          fontSize="40"
+          x="28"
+          y={staffTop + 2.4 * lineSpacing}
+          fontSize="48"
           className="select-none"
-          style={{ fontFamily: 'serif' }}
         >
           𝄢
         </text>
       )}
 
-      {/* Ledger lines */}
-      {ledgerLines.map((y, i) => (
-        <line
-          key={i}
-          x1="118"
-          y1={y}
-          x2="158"
-          y2={y}
-          stroke="currentColor"
-          strokeWidth="1.5"
-        />
-      ))}
-
-      {/* Note head */}
+      {/* Note head - oval shape rotated slightly */}
       <ellipse
-        cx="138"
+        cx="150"
         cy={noteY}
-        rx="9"
-        ry="7"
+        rx="10"
+        ry="8"
         fill="currentColor"
-        transform={`rotate(-20, 138, ${noteY})`}
+        transform={`rotate(-15, 150, ${noteY})`}
       />
     </svg>
   );
