@@ -1,6 +1,6 @@
 "use client";
 
-import { VirtualPiano } from "@/components/exercises";
+import { VirtualPiano, SightReading } from "@/components/exercises";
 import { Card, CardContent } from "@/components/ui";
 import { Keyboard, BookOpen, Music } from "lucide-react";
 
@@ -83,37 +83,8 @@ export default function PianoPage() {
         </div>
       </div>
 
-      {/* Coming soon features */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="p-6 border rounded-lg bg-card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-emerald-500/10">
-              <BookOpen className="h-5 w-5 text-emerald-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Sight Reading</h3>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Practice reading sheet music with real-time feedback.
-          </p>
-        </div>
-        <div className="p-6 border rounded-lg bg-card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-emerald-500/10">
-              <Music className="h-5 w-5 text-emerald-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Finger Exercises</h3>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Hanon exercises and scale patterns for technique.
-          </p>
-        </div>
-      </div>
+      {/* Sight Reading */}
+      <SightReading />
     </div>
   );
 }

@@ -5,3 +5,8 @@ export { IntervalTrainer } from "./IntervalTrainer";
 export { VirtualPiano } from "./VirtualPiano";
 export { GuitarChordLibrary } from "./GuitarChordLibrary";
 export { PitchTrainer } from "./PitchTrainer";
+export { ChordRecognition } from "./ChordRecognition";
+export { MelodyDictation } from "./MelodyDictation";
+export { SightReading } from "./SightReading";
+export { FretboardTrainer } from "./FretboardTrainer";
+export { VocalRangeTest } from "./VocalRangeTest";

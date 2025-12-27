@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui";
-import { IntervalTrainer } from "@/components/exercises";
-import { Headphones, Music, AudioLines, Lightbulb } from "lucide-react";
+import { IntervalTrainer, ChordRecognition, MelodyDictation } from "@/components/exercises";
+import { Lightbulb } from "lucide-react";
 
 export default function EarTrainingPage() {
   return (
@@ -50,37 +48,11 @@ export default function EarTrainingPage() {
         </div>
       </div>
 
-      {/* Additional exercises coming soon */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="p-6 border rounded-lg bg-card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-purple-500/10">
-              <AudioLines className="h-5 w-5 text-purple-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Chord Recognition</h3>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Identify chord types by ear - major, minor, diminished, and more.
-          </p>
-        </div>
-        <div className="p-6 border rounded-lg bg-card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-purple-500/10">
-              <Music className="h-5 w-5 text-purple-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Melody Dictation</h3>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Listen to melodies and transcribe them note by note.
-          </p>
-        </div>
-      </div>
+      {/* Chord Recognition */}
+      <ChordRecognition />
+
+      {/* Melody Dictation */}
+      <MelodyDictation />
     </div>
   );
 }

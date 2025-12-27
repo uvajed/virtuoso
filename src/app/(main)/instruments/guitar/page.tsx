@@ -1,6 +1,6 @@
 "use client";
 
-import { GuitarChordLibrary } from "@/components/exercises";
+import { GuitarChordLibrary, FretboardTrainer } from "@/components/exercises";
 import { Card, CardContent } from "@/components/ui";
 import { Guitar, BookOpen, Music, Lightbulb } from "lucide-react";
 import Link from "next/link";
@@ -71,37 +71,8 @@ export default function GuitarPage() {
         </CardContent>
       </Card>
 
-      {/* Coming soon */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="p-6 border rounded-lg bg-card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-orange-500/10">
-              <Guitar className="h-5 w-5 text-orange-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Fretboard Trainer</h3>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Learn all the notes on the fretboard with interactive quizzes.
-          </p>
-        </div>
-        <div className="p-6 border rounded-lg bg-card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-orange-500/10">
-              <Music className="h-5 w-5 text-orange-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Strumming Patterns</h3>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Practice common strumming patterns with the metronome.
-          </p>
-        </div>
-      </div>
+      {/* Fretboard Trainer */}
+      <FretboardTrainer />
 
       {/* Link to tuner */}
       <Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { PitchTrainer } from "@/components/exercises";
+import { PitchTrainer, VocalRangeTest } from "@/components/exercises";
 import { Card, CardContent } from "@/components/ui";
 import { Mic2, Wind, Lightbulb, AudioLines } from "lucide-react";
 import Link from "next/link";
@@ -94,37 +94,8 @@ export default function VoicePage() {
         </CardContent>
       </Card>
 
-      {/* Coming soon */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="p-6 border rounded-lg bg-card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-pink-500/10">
-              <AudioLines className="h-5 w-5 text-pink-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Vocal Range Test</h3>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Discover your complete vocal range with guided exercises.
-          </p>
-        </div>
-        <div className="p-6 border rounded-lg bg-card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-pink-500/10">
-              <Mic2 className="h-5 w-5 text-pink-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Warm-up Routines</h3>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Guided vocal warm-ups with audio examples.
-          </p>
-        </div>
-      </div>
+      {/* Vocal Range Test */}
+      <VocalRangeTest />
 
       {/* Link to tuner */}
       <Card>
