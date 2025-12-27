@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { trackExerciseComplete } from "@/lib/progress";
 
 const NOTES = ["C", "D", "E", "F", "G", "A", "B"];
 const ACCIDENTALS = ["", "#", "b"];
@@ -112,10 +113,15 @@ export function NoteQuiz() {
     setSelected(note);
     setShowResult(true);
     const isCorrect = note === question.note;
-    setScore(prev => ({
-      correct: prev.correct + (isCorrect ? 1 : 0),
-      total: prev.total + 1,
-    }));
+    setScore(prev => {
+      const newScore = {
+        correct: prev.correct + (isCorrect ? 1 : 0),
+        total: prev.total + 1,
+      };
+      // Track progress for achievements
+      trackExerciseComplete("theory", isCorrect, false);
+      return newScore;
+    });
   }, [question.note]);
 
   const nextQuestion = useCallback(() => {

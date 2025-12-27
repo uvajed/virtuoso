@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ui";
 import { Trophy, Star, Flame, Music, Target, Headphones, Piano, Clock, Award, Zap } from "lucide-react";
+import { getProgress, type ProgressData } from "@/lib/progress";
 
 interface Achievement {
   id: string;
@@ -58,68 +59,79 @@ const RARITY_BORDERS = {
 
 export function Achievements() {
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
-  const [stats, setStats] = useState({
-    exercisesCompleted: 0,
-    perfectScores: 0,
-    intervalsCorrect: 0,
-    chordsCorrect: 0,
-    currentStreak: 0,
-    totalMinutes: 0,
-  });
+  const [progress, setProgress] = useState<ProgressData | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  useEffect(() => {
-    // Load from localStorage
-    const saved = localStorage.getItem("achievements");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setUnlockedIds(new Set(parsed.unlocked || []));
-      setStats(parsed.stats || stats);
-    }
+  // Load progress and listen for updates
+  const loadProgress = useCallback(() => {
+    const data = getProgress();
+    setProgress(data);
   }, []);
 
-  // Check and unlock achievements
   useEffect(() => {
+    loadProgress();
+
+    // Load unlocked achievements
+    const saved = localStorage.getItem("virtuoso_unlocked_achievements");
+    if (saved) {
+      setUnlockedIds(new Set(JSON.parse(saved)));
+    }
+
+    // Listen for progress updates from exercises
+    const handleProgressUpdate = () => loadProgress();
+    window.addEventListener("virtuoso-progress-update", handleProgressUpdate);
+
+    return () => {
+      window.removeEventListener("virtuoso-progress-update", handleProgressUpdate);
+    };
+  }, [loadProgress]);
+
+  // Check and unlock achievements when progress changes
+  useEffect(() => {
+    if (!progress) return;
+
     const newUnlocked = new Set(unlockedIds);
     let changed = false;
 
     ACHIEVEMENTS.forEach(achievement => {
       if (unlockedIds.has(achievement.id)) return;
 
-      let progress = 0;
+      let currentProgress = 0;
       switch (achievement.id) {
         case "first_note":
         case "warm_up":
         case "dedicated":
         case "master":
         case "legend":
-          progress = stats.exercisesCompleted;
+          currentProgress = progress.exercisesCompleted;
           break;
         case "perfect_10":
-          progress = stats.perfectScores;
+          currentProgress = progress.perfectScores;
           break;
         case "interval_pro":
+          currentProgress = progress.intervalsCorrect;
+          break;
         case "ear_master":
-          progress = stats.intervalsCorrect;
+          currentProgress = progress.earTrainingCorrect;
           break;
         case "chord_wizard":
-          progress = stats.chordsCorrect;
+          currentProgress = progress.chordsCorrect;
           break;
         case "streak_3":
         case "streak_7":
         case "streak_30":
         case "streak_100":
         case "streak_365":
-          progress = stats.currentStreak;
+          currentProgress = progress.currentStreak;
           break;
         case "hour_1":
         case "hour_10":
         case "hour_100":
-          progress = stats.totalMinutes;
+          currentProgress = progress.practiceMinutes;
           break;
       }
 
-      if (progress >= achievement.requirement) {
+      if (currentProgress >= achievement.requirement) {
         newUnlocked.add(achievement.id);
         changed = true;
       }
@@ -127,12 +139,9 @@ export function Achievements() {
 
     if (changed) {
       setUnlockedIds(newUnlocked);
-      localStorage.setItem("achievements", JSON.stringify({
-        unlocked: Array.from(newUnlocked),
-        stats
-      }));
+      localStorage.setItem("virtuoso_unlocked_achievements", JSON.stringify(Array.from(newUnlocked)));
     }
-  }, [stats, unlockedIds]);
+  }, [progress, unlockedIds]);
 
   const filteredAchievements = selectedCategory === "all"
     ? ACHIEVEMENTS
@@ -142,32 +151,23 @@ export function Achievements() {
     .filter(a => unlockedIds.has(a.id))
     .reduce((sum, a) => sum + a.xpReward, 0);
 
-  const getProgress = (achievement: Achievement): number => {
+  const getAchievementProgress = (achievement: Achievement): number => {
+    if (!progress) return 0;
     switch (achievement.category) {
       case "practice":
-        return stats.exercisesCompleted;
+        return progress.exercisesCompleted;
       case "skill":
-        if (achievement.id.includes("interval")) return stats.intervalsCorrect;
-        if (achievement.id.includes("chord")) return stats.chordsCorrect;
-        return stats.perfectScores;
+        if (achievement.id.includes("interval")) return progress.intervalsCorrect;
+        if (achievement.id.includes("chord")) return progress.chordsCorrect;
+        if (achievement.id.includes("ear")) return progress.earTrainingCorrect;
+        return progress.perfectScores;
       case "streak":
-        return stats.currentStreak;
+        return progress.currentStreak;
       case "milestone":
-        return stats.totalMinutes;
+        return progress.practiceMinutes;
       default:
         return 0;
     }
-  };
-
-  // Demo: simulate progress
-  const addProgress = () => {
-    setStats(prev => ({
-      ...prev,
-      exercisesCompleted: prev.exercisesCompleted + 1,
-      intervalsCorrect: prev.intervalsCorrect + 1,
-      currentStreak: prev.currentStreak + 1,
-      totalMinutes: prev.totalMinutes + 5,
-    }));
   };
 
   return (
@@ -208,8 +208,8 @@ export function Achievements() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filteredAchievements.map(achievement => {
             const isUnlocked = unlockedIds.has(achievement.id);
-            const progress = getProgress(achievement);
-            const percent = Math.min((progress / achievement.requirement) * 100, 100);
+            const achievementProgress = getAchievementProgress(achievement);
+            const percent = Math.min((achievementProgress / achievement.requirement) * 100, 100);
             const Icon = achievement.icon;
 
             return (
@@ -245,7 +245,7 @@ export function Achievements() {
                           />
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {progress}/{achievement.requirement}
+                          {achievementProgress}/{achievement.requirement}
                         </span>
                       </div>
                     )}
@@ -262,13 +262,27 @@ export function Achievements() {
           })}
         </div>
 
-        {/* Demo button */}
-        <button
-          onClick={addProgress}
-          className="w-full p-2 text-sm bg-muted hover:bg-muted/80 rounded-lg transition-colors"
-        >
-          Simulate Progress (Demo)
-        </button>
+        {/* Stats summary */}
+        {progress && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-muted/50 rounded-lg">
+            <div className="text-center">
+              <p className="text-lg font-bold">{progress.exercisesCompleted}</p>
+              <p className="text-xs text-muted-foreground">Exercises</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold">{progress.theoryCorrect + progress.earTrainingCorrect}</p>
+              <p className="text-xs text-muted-foreground">Correct Answers</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold">{progress.currentStreak}</p>
+              <p className="text-xs text-muted-foreground">Day Streak</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold">{progress.practiceMinutes}m</p>
+              <p className="text-xs text-muted-foreground">Practice Time</p>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

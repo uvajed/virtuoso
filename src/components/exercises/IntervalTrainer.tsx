@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { CheckCircle, XCircle, RefreshCw, Volume2, Play } from "lucide-react";
+import { trackExerciseComplete } from "@/lib/progress";
 
 // Simple intervals (within one octave)
 const SIMPLE_INTERVALS = [
@@ -169,6 +170,8 @@ export function IntervalTrainer() {
       correct: prev.correct + (isCorrect ? 1 : 0),
       total: prev.total + 1,
     }));
+    // Track progress for achievements
+    trackExerciseComplete("interval", isCorrect, false);
   }, [question.interval.name]);
 
   const nextQuestion = useCallback(() => {

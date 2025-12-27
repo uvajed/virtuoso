@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { CheckCircle, XCircle, RefreshCw, Play, Volume2 } from "lucide-react";
+import { trackExerciseComplete } from "@/lib/progress";
 
 const CHORD_TYPES = [
   { name: "Major", intervals: [0, 4, 7], description: "Happy, bright" },
@@ -101,6 +102,8 @@ export function ChordRecognition() {
       correct: prev.correct + (isCorrect ? 1 : 0),
       total: prev.total + 1,
     }));
+    // Track progress for achievements
+    trackExerciseComplete("chord", isCorrect, false);
   }, [question.chordType.name]);
 
   const nextQuestion = useCallback(() => {
