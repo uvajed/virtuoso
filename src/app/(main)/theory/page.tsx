@@ -1,92 +1,82 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui";
-import { BookOpen, Music, FileMusic, Piano } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-const topics = [
-  {
-    title: "Notes & Staff",
-    description: "Learn to read notes on the treble and bass clef",
-    icon: Music,
-    href: "/theory/notes",
-    available: false,
-  },
-  {
-    title: "Scales",
-    description: "Major, minor, and modal scales",
-    icon: FileMusic,
-    href: "/theory/scales",
-    available: false,
-  },
-  {
-    title: "Chords",
-    description: "Triads, seventh chords, and extensions",
-    icon: Piano,
-    href: "/theory/chords",
-    available: false,
-  },
-  {
-    title: "Key Signatures",
-    description: "Understanding keys and the circle of fifths",
-    icon: BookOpen,
-    href: "/theory/keys",
-    available: false,
-  },
+import { useState } from "react";
+import { Button } from "@/components/ui";
+import { NoteQuiz, ScaleQuiz, ChordQuiz } from "@/components/exercises";
+import { Music, FileMusic, Piano, BookOpen } from "lucide-react";
+
+const exercises = [
+  { id: "notes", name: "Note Identification", icon: Music, component: NoteQuiz },
+  { id: "scales", name: "Scale Identification", icon: FileMusic, component: ScaleQuiz },
+  { id: "chords", name: "Chord Identification", icon: Piano, component: ChordQuiz },
 ];
 
 export default function TheoryPage() {
+  const [activeExercise, setActiveExercise] = useState("notes");
+
+  const ActiveComponent = exercises.find((e) => e.id === activeExercise)?.component || NoteQuiz;
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold">Music Theory</h1>
         <p className="text-muted-foreground mt-1">
-          Build a solid foundation in music theory
+          Test your knowledge of notes, scales, and chords
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {topics.map((topic) => {
-          const Icon = topic.icon;
+      {/* Exercise selector */}
+      <div className="flex flex-wrap gap-2">
+        {exercises.map((exercise) => {
+          const Icon = exercise.icon;
           return (
-            <Card key={topic.title} className="relative overflow-hidden">
-              {!topic.available && (
-                <div className="absolute top-3 right-3">
-                  <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                    Coming Soon
-                  </span>
-                </div>
-              )}
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-500/10">
-                    <Icon className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{topic.title}</CardTitle>
-                    <CardDescription>{topic.description}</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
+            <Button
+              key={exercise.id}
+              variant={activeExercise === exercise.id ? "default" : "outline"}
+              onClick={() => setActiveExercise(exercise.id)}
+              className="gap-2"
+            >
+              <Icon className="h-4 w-4" />
+              {exercise.name}
+            </Button>
           );
         })}
       </div>
 
-      <Card>
-        <CardContent className="py-12 text-center">
-          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold">Theory Lessons Coming Soon</h3>
-          <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-            We&apos;re building interactive lessons to help you master music theory.
-            Check back soon!
-          </p>
-          <Link
-            href="/tools"
-            className="inline-block mt-4 text-primary hover:underline"
-          >
-            Try the practice tools while you wait
-          </Link>
-        </CardContent>
-      </Card>
+      {/* Active exercise */}
+      <ActiveComponent />
+
+      {/* Tips section */}
+      <div className="bg-muted/50 rounded-lg p-6 mt-8">
+        <h3 className="font-semibold flex items-center gap-2 mb-3">
+          <BookOpen className="h-5 w-5" />
+          Quick Tips
+        </h3>
+        {activeExercise === "notes" && (
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>• Lines on treble clef (bottom to top): E G B D F - &quot;Every Good Boy Does Fine&quot;</li>
+            <li>• Spaces on treble clef: F A C E - spells &quot;FACE&quot;</li>
+            <li>• Lines on bass clef: G B D F A - &quot;Good Boys Do Fine Always&quot;</li>
+            <li>• Spaces on bass clef: A C E G - &quot;All Cows Eat Grass&quot;</li>
+          </ul>
+        )}
+        {activeExercise === "scales" && (
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>• Major scale pattern: W W H W W W H (W=whole step, H=half step)</li>
+            <li>• Natural minor: W H W W H W W</li>
+            <li>• Harmonic minor: like natural minor but raised 7th</li>
+            <li>• Pentatonic scales have 5 notes and no half steps</li>
+          </ul>
+        )}
+        {activeExercise === "chords" && (
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>• Major = Root + Major 3rd + Perfect 5th (happy sound)</li>
+            <li>• Minor = Root + Minor 3rd + Perfect 5th (sad sound)</li>
+            <li>• Diminished = Root + Minor 3rd + Diminished 5th (tense)</li>
+            <li>• 7th chords add an extra note a 7th above the root</li>
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

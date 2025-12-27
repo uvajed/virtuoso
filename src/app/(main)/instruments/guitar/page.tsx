@@ -1,86 +1,125 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui";
-import { Guitar, Music, FileMusic, Hand } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-const features = [
-  {
-    title: "Chord Library",
-    description: "Interactive chord diagrams",
-    icon: Music,
-    available: false,
-  },
-  {
-    title: "Fretboard Trainer",
-    description: "Learn notes on the fretboard",
-    icon: Guitar,
-    available: false,
-  },
-  {
-    title: "Tab Reader",
-    description: "Read and play guitar tabs",
-    icon: FileMusic,
-    available: false,
-  },
-  {
-    title: "Strumming Patterns",
-    description: "Practice common strumming patterns",
-    icon: Hand,
-    available: false,
-  },
-];
+import { GuitarChordLibrary } from "@/components/exercises";
+import { Card, CardContent } from "@/components/ui";
+import { Guitar, BookOpen, Music, Lightbulb } from "lucide-react";
+import Link from "next/link";
 
 export default function GuitarPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold">Guitar Practice</h1>
         <p className="text-muted-foreground mt-1">
-          Chords, tabs, and fretboard exercises
+          Learn chords and practice with interactive diagrams
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {features.map((feature) => {
-          const Icon = feature.icon;
-          return (
-            <Card key={feature.title} className="relative overflow-hidden">
-              {!feature.available && (
-                <div className="absolute top-3 right-3">
-                  <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                    Coming Soon
-                  </span>
-                </div>
-              )}
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-orange-500/10">
-                    <Icon className="h-5 w-5 text-orange-500" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          );
-        })}
+      {/* Chord Library */}
+      <GuitarChordLibrary />
+
+      {/* Tips */}
+      <div className="bg-muted/50 rounded-lg p-6">
+        <h3 className="font-semibold flex items-center gap-2 mb-4">
+          <Lightbulb className="h-5 w-5" />
+          Guitar Practice Tips
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+          <div>
+            <h4 className="font-medium text-foreground mb-2">Beginner Chords to Master</h4>
+            <ul className="space-y-1">
+              <li>• Start with Em and Am (easiest)</li>
+              <li>• Then learn C, G, and D</li>
+              <li>• Practice chord transitions slowly</li>
+              <li>• Use a metronome for timing</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium text-foreground mb-2">Proper Technique</h4>
+            <ul className="space-y-1">
+              <li>• Press strings with fingertips</li>
+              <li>• Keep thumb behind the neck</li>
+              <li>• Fingers curved, not flat</li>
+              <li>• Check each string rings clearly</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
+      {/* Common progressions */}
       <Card>
-        <CardContent className="py-12 text-center">
-          <Guitar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold">Guitar Features Coming Soon</h3>
-          <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-            We&apos;re building chord diagrams and fretboard tools.
-            Use the tuner to tune your guitar!
+        <CardContent className="pt-6">
+          <h3 className="font-semibold mb-4">Essential Chord Progressions</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-medium mb-1">G - C - D</h4>
+              <p className="text-muted-foreground text-xs">Basic 3-chord progression for many songs</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-medium mb-1">G - Em - C - D</h4>
+              <p className="text-muted-foreground text-xs">Popular 4-chord progression</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-medium mb-1">Am - F - C - G</h4>
+              <p className="text-muted-foreground text-xs">Minor key progression</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-medium mb-1">E - A - B7</h4>
+              <p className="text-muted-foreground text-xs">Blues progression in E</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Coming soon */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="p-6 border rounded-lg bg-card">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-orange-500/10">
+              <Guitar className="h-5 w-5 text-orange-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Fretboard Trainer</h3>
+              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Learn all the notes on the fretboard with interactive quizzes.
           </p>
-          <Link
-            href="/tools/tuner"
-            className="inline-block mt-4 text-primary hover:underline"
-          >
-            Try the Tuner
-          </Link>
+        </div>
+        <div className="p-6 border rounded-lg bg-card">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-orange-500/10">
+              <Music className="h-5 w-5 text-orange-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Strumming Patterns</h3>
+              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Practice common strumming patterns with the metronome.
+          </p>
+        </div>
+      </div>
+
+      {/* Link to tuner */}
+      <Card>
+        <CardContent className="py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">Need to tune your guitar?</h3>
+              <p className="text-sm text-muted-foreground">
+                Standard tuning: E A D G B E
+              </p>
+            </div>
+            <Link
+              href="/tools/tuner"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Open Tuner
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

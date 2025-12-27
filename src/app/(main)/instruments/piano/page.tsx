@@ -1,88 +1,119 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui";
-import { Piano, Music, BookOpen, Keyboard } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-const features = [
-  {
-    title: "Virtual Piano",
-    description: "Play an 88-key virtual piano",
-    icon: Keyboard,
-    available: false,
-  },
-  {
-    title: "Sight Reading",
-    description: "Practice reading sheet music",
-    icon: BookOpen,
-    available: false,
-  },
-  {
-    title: "Chord Practice",
-    description: "Learn and practice piano chords",
-    icon: Music,
-    available: false,
-  },
-  {
-    title: "Finger Exercises",
-    description: "Hanon exercises and scales",
-    icon: Piano,
-    available: false,
-  },
-];
+import { VirtualPiano } from "@/components/exercises";
+import { Card, CardContent } from "@/components/ui";
+import { Keyboard, BookOpen, Music } from "lucide-react";
 
 export default function PianoPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold">Piano Practice</h1>
         <p className="text-muted-foreground mt-1">
-          Interactive piano exercises and tools
+          Play and practice on the virtual piano
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {features.map((feature) => {
-          const Icon = feature.icon;
-          return (
-            <Card key={feature.title} className="relative overflow-hidden">
-              {!feature.available && (
-                <div className="absolute top-3 right-3">
-                  <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                    Coming Soon
-                  </span>
-                </div>
-              )}
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-500/10">
-                    <Icon className="h-5 w-5 text-emerald-500" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          );
-        })}
+      {/* Virtual Piano */}
+      <VirtualPiano />
+
+      {/* Practice tips */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <Keyboard className="h-5 w-5 text-emerald-500" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Keyboard Controls</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Use your computer keyboard: A-L for white keys (C4-E5), W-P for black keys.
+                  You can also click or tap the piano keys directly.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <Music className="h-5 w-5 text-emerald-500" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Practice Tips</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Start with scales: C major (all white keys), then try G major (F#) and F major (Bb).
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <Card>
-        <CardContent className="py-12 text-center">
-          <Piano className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold">Piano Features Coming Soon</h3>
-          <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-            We&apos;re building an interactive virtual piano with exercises.
-            Use the metronome to practice your timing!
+      {/* Common chord progressions */}
+      <div className="bg-muted/50 rounded-lg p-6">
+        <h3 className="font-semibold flex items-center gap-2 mb-4">
+          <BookOpen className="h-5 w-5" />
+          Common Chord Progressions to Practice
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <h4 className="font-medium mb-2">I - IV - V - I (Key of C)</h4>
+            <p className="text-muted-foreground">C - F - G - C</p>
+            <p className="text-xs text-muted-foreground mt-1">Used in countless pop songs</p>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">I - V - vi - IV (Key of C)</h4>
+            <p className="text-muted-foreground">C - G - Am - F</p>
+            <p className="text-xs text-muted-foreground mt-1">The &quot;4 chord song&quot; progression</p>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">ii - V - I (Key of C)</h4>
+            <p className="text-muted-foreground">Dm - G - C</p>
+            <p className="text-xs text-muted-foreground mt-1">Essential jazz progression</p>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">I - vi - IV - V (Key of C)</h4>
+            <p className="text-muted-foreground">C - Am - F - G</p>
+            <p className="text-xs text-muted-foreground mt-1">Classic 50s progression</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Coming soon features */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="p-6 border rounded-lg bg-card">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-emerald-500/10">
+              <BookOpen className="h-5 w-5 text-emerald-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Sight Reading</h3>
+              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Practice reading sheet music with real-time feedback.
           </p>
-          <Link
-            href="/tools/metronome"
-            className="inline-block mt-4 text-primary hover:underline"
-          >
-            Try the Metronome
-          </Link>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="p-6 border rounded-lg bg-card">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-emerald-500/10">
+              <Music className="h-5 w-5 text-emerald-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Finger Exercises</h3>
+              <span className="text-xs bg-muted px-2 py-0.5 rounded">Coming Soon</span>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Hanon exercises and scale patterns for technique.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
