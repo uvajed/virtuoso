@@ -236,7 +236,7 @@ export function PitchTrainer() {
         <div className="flex gap-2 justify-center">
           <Button
             onClick={isListening ? stopListening : startListening}
-            variant={isListening ? "destructive" : "default"}
+            variant={isListening ? "danger" : "primary"}
             size="lg"
           >
             {isListening ? (

@@ -184,7 +184,7 @@ export function GuitarChordLibrary() {
           {CATEGORIES.map((category) => (
             <Button
               key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
+              variant={selectedCategory === category ? "primary" : "outline"}
               size="sm"
               onClick={() => setSelectedCategory(category)}
             >
@@ -198,7 +198,7 @@ export function GuitarChordLibrary() {
           {filteredChords.map((chord) => (
             <Button
               key={chord.name}
-              variant={selectedChord?.name === chord.name ? "default" : "outline"}
+              variant={selectedChord?.name === chord.name ? "primary" : "outline"}
               size="sm"
               onClick={() => setSelectedChord(chord)}
             >

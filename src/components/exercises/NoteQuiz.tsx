@@ -156,7 +156,7 @@ export function NoteQuiz() {
             const isSelected = selected === note;
             const isAnswer = question.note === note;
 
-            let variant: "default" | "outline" | "ghost" = "outline";
+            let variant: "primary" | "outline" | "ghost" = "outline";
             let className = "";
 
             if (showResult) {

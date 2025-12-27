@@ -32,7 +32,7 @@ export default function TheoryPage() {
           return (
             <Button
               key={exercise.id}
-              variant={activeExercise === exercise.id ? "default" : "outline"}
+              variant={activeExercise === exercise.id ? "primary" : "outline"}
               onClick={() => setActiveExercise(exercise.id)}
               className="gap-2"
             >
