@@ -14,52 +14,78 @@ interface Question {
   position: number;
 }
 
-// Treble clef: Lines from bottom to top are E4, G4, B4, D5, F5
-// Position 1 = bottom line (E4), position 9 = top line (F5)
-const TREBLE_POSITIONS: Record<string, number> = {
-  E4: 1, F4: 2, G4: 3, A4: 4, B4: 5, C5: 6, D5: 7, E5: 8, F5: 9,
-};
+// Staff line positions (0 = bottom line, 4 = top line)
+// Treble clef lines from bottom to top: E4, G4, B4, D5, F5
+// Treble clef spaces from bottom to top: F4, A4, C5, E5
+const TREBLE_NOTES: { note: string; line: number }[] = [
+  { note: "E", line: 0 },   // Bottom line
+  { note: "F", line: 0.5 }, // First space
+  { note: "G", line: 1 },   // Second line
+  { note: "A", line: 1.5 }, // Second space
+  { note: "B", line: 2 },   // Middle line
+  { note: "C", line: 2.5 }, // Third space
+  { note: "D", line: 3 },   // Fourth line
+  { note: "E", line: 3.5 }, // Fourth space
+  { note: "F", line: 4 },   // Top line
+];
 
-// Bass clef: Lines from bottom to top are G2, B2, D3, F3, A3
-// Position 1 = bottom line (G2), position 9 = top line (A3)
-const BASS_POSITIONS: Record<string, number> = {
-  G2: 1, A2: 2, B2: 3, C3: 4, D3: 5, E3: 6, F3: 7, G3: 8, A3: 9,
-};
+// Bass clef lines from bottom to top: G2, B2, D3, F3, A3
+// Bass clef spaces from bottom to top: A2, C3, E3, G3
+const BASS_NOTES: { note: string; line: number }[] = [
+  { note: "G", line: 0 },   // Bottom line
+  { note: "A", line: 0.5 }, // First space
+  { note: "B", line: 1 },   // Second line
+  { note: "C", line: 1.5 }, // Second space
+  { note: "D", line: 2 },   // Middle line
+  { note: "E", line: 2.5 }, // Third space
+  { note: "F", line: 3 },   // Fourth line
+  { note: "G", line: 3.5 }, // Fourth space
+  { note: "A", line: 4 },   // Top line
+];
 
 function generateQuestion(): Question {
   const clef = Math.random() > 0.5 ? "treble" : "bass";
-  const positions = clef === "treble" ? TREBLE_POSITIONS : BASS_POSITIONS;
-  const notes = Object.keys(positions);
+  const notes = clef === "treble" ? TREBLE_NOTES : BASS_NOTES;
   const randomNote = notes[Math.floor(Math.random() * notes.length)];
 
   return {
-    note: randomNote[0],
+    note: randomNote.note,
     clef,
-    position: positions[randomNote],
+    position: randomNote.line,
   };
 }
 
 function StaffNote({ position, clef }: { position: number; clef: "treble" | "bass" }) {
-  const lineSpacing = 12;
-  const staffTop = 20;
-  const noteY = staffTop + (9 - position) * (lineSpacing / 2);
+  const lineSpacing = 14;
+  const staffTop = 30;
+  const staffBottom = staffTop + 4 * lineSpacing; // Bottom line Y position
 
-  // Ledger lines for notes outside the staff
-  const ledgerLines = [];
-  if (position < 1) {
-    for (let i = 1; i >= position; i -= 2) {
-      ledgerLines.push(staffTop + (9 - i) * (lineSpacing / 2));
+  // Calculate note Y: position 0 = bottom line, position 4 = top line
+  // Each whole number is a line, half numbers are spaces
+  const noteY = staffBottom - (position * lineSpacing);
+
+  // Ledger lines for notes below the staff (position < 0) or above (position > 4)
+  const ledgerLines: number[] = [];
+  if (position < 0) {
+    // Notes below the staff need ledger lines at positions 0, -1, -2, etc (lines only)
+    for (let i = -1; i >= Math.floor(position); i--) {
+      if (i % 1 === 0) { // Only whole numbers (lines)
+        ledgerLines.push(staffBottom - (i * lineSpacing));
+      }
     }
   }
-  if (position > 9) {
-    for (let i = 11; i <= position; i += 2) {
-      ledgerLines.push(staffTop + (9 - i) * (lineSpacing / 2));
+  if (position > 4) {
+    // Notes above the staff
+    for (let i = 5; i <= Math.ceil(position); i++) {
+      if (i % 1 === 0) {
+        ledgerLines.push(staffBottom - (i * lineSpacing));
+      }
     }
   }
 
   return (
     <svg width="200" height="120" className="mx-auto">
-      {/* Staff lines */}
+      {/* Staff lines - drawn from top to bottom */}
       {[0, 1, 2, 3, 4].map((i) => (
         <line
           key={i}
@@ -68,36 +94,56 @@ function StaffNote({ position, clef }: { position: number; clef: "treble" | "bas
           x2="180"
           y2={staffTop + i * lineSpacing}
           stroke="currentColor"
-          strokeWidth="1"
+          strokeWidth="1.5"
         />
       ))}
 
-      {/* Clef */}
-      <text x="30" y={staffTop + 36} fontSize="48" className="select-none">
-        {clef === "treble" ? "𝄞" : "𝄢"}
-      </text>
+      {/* Clef symbol */}
+      {clef === "treble" ? (
+        // Treble clef - positioned so the curl wraps around the G line (2nd from bottom = index 3)
+        <text
+          x="25"
+          y={staffTop + 3.35 * lineSpacing}
+          fontSize="56"
+          className="select-none"
+          style={{ fontFamily: 'serif' }}
+        >
+          𝄞
+        </text>
+      ) : (
+        // Bass clef - positioned so the dots are around the F line (2nd from top = index 1)
+        <text
+          x="25"
+          y={staffTop + 1.5 * lineSpacing}
+          fontSize="40"
+          className="select-none"
+          style={{ fontFamily: 'serif' }}
+        >
+          𝄢
+        </text>
+      )}
 
       {/* Ledger lines */}
       {ledgerLines.map((y, i) => (
         <line
           key={i}
-          x1="115"
+          x1="118"
           y1={y}
-          x2="155"
+          x2="158"
           y2={y}
           stroke="currentColor"
-          strokeWidth="1"
+          strokeWidth="1.5"
         />
       ))}
 
-      {/* Note */}
+      {/* Note head */}
       <ellipse
-        cx="135"
+        cx="138"
         cy={noteY}
-        rx="8"
-        ry="6"
+        rx="9"
+        ry="7"
         fill="currentColor"
-        transform={`rotate(-15, 135, ${noteY})`}
+        transform={`rotate(-20, 138, ${noteY})`}
       />
     </svg>
   );
