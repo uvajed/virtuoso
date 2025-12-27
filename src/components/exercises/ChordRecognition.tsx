@@ -13,6 +13,13 @@ const CHORD_TYPES = [
   { name: "Minor 7th", intervals: [0, 3, 7, 10], description: "Mellow" },
   { name: "Dominant 7th", intervals: [0, 4, 7, 10], description: "Bluesy" },
   { name: "Sus4", intervals: [0, 5, 7], description: "Open, unresolved" },
+  { name: "Major 9th", intervals: [0, 4, 7, 11, 14], description: "Rich, dreamy" },
+  { name: "Minor 9th", intervals: [0, 3, 7, 10, 14], description: "Smooth, soulful" },
+  { name: "Dominant 9th", intervals: [0, 4, 7, 10, 14], description: "Funky, R&B" },
+  { name: "11th", intervals: [0, 4, 7, 10, 14, 17], description: "Complex, jazzy" },
+  { name: "Minor 11th", intervals: [0, 3, 7, 10, 14, 17], description: "Deep, modal" },
+  { name: "13th", intervals: [0, 4, 7, 10, 14, 21], description: "Full, orchestral" },
+  { name: "Minor 13th", intervals: [0, 3, 7, 10, 14, 21], description: "Lush, cinematic" },
 ];
 
 const ROOT_FREQUENCIES: Record<string, number> = {
@@ -137,7 +144,7 @@ export function ChordRecognition() {
           <p className="text-xs text-muted-foreground">Root note: {question.root}</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
           {CHORD_TYPES.map((chord) => {
             const isSelected = selected === chord.name;
             const isAnswer = question.chordType.name === chord.name;

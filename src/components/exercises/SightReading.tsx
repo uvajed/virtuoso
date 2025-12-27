@@ -4,50 +4,92 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { CheckCircle, XCircle, RefreshCw, Play } from "lucide-react";
 
-const NOTES = ["C", "D", "E", "F", "G", "A", "B"];
+const NATURAL_NOTES = ["C", "D", "E", "F", "G", "A", "B"];
+const ALL_NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 // Treble clef note positions (0 = bottom line E4, each step = half line spacing)
 // Lines (bottom to top): E4, G4, B4, D5, F5
 // Spaces: F4, A4, C5, E5
+// Sharps/flats share position with their natural note
 const NOTE_POSITIONS: Record<string, number> = {
-  C4: -2,  // Ledger line below staff
-  D4: -1,  // Space below staff
-  E4: 0,   // Bottom line (1st line)
-  F4: 1,   // 1st space
-  G4: 2,   // 2nd line
-  A4: 3,   // 2nd space
-  B4: 4,   // 3rd line (middle)
-  C5: 5,   // 3rd space
-  D5: 6,   // 4th line
-  E5: 7,   // 4th space
-  F5: 8,   // 5th line (top)
-  G5: 9,   // Above staff
+  // Octave 4
+  C4: -2, "C#4": -2, "Db4": -2,
+  D4: -1, "D#4": -1, "Eb4": -1,
+  E4: 0,
+  F4: 1, "F#4": 1, "Gb4": 1,
+  G4: 2, "G#4": 2, "Ab4": 2,
+  A4: 3, "A#4": 3, "Bb4": 3,
+  B4: 4,
+  // Octave 5
+  C5: 5, "C#5": 5, "Db5": 5,
+  D5: 6, "D#5": 6, "Eb5": 6,
+  E5: 7,
+  F5: 8, "F#5": 8, "Gb5": 8,
+  G5: 9, "G#5": 9, "Ab5": 9,
 };
 
 const NOTE_FREQUENCIES: Record<string, number> = {
-  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
-  C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99,
+  // Octave 4
+  C4: 261.63, "C#4": 277.18, "Db4": 277.18,
+  D4: 293.66, "D#4": 311.13, "Eb4": 311.13,
+  E4: 329.63,
+  F4: 349.23, "F#4": 369.99, "Gb4": 369.99,
+  G4: 392.00, "G#4": 415.30, "Ab4": 415.30,
+  A4: 440.00, "A#4": 466.16, "Bb4": 466.16,
+  B4: 493.88,
+  // Octave 5
+  C5: 523.25, "C#5": 554.37, "Db5": 554.37,
+  D5: 587.33, "D#5": 622.25, "Eb5": 622.25,
+  E5: 659.25,
+  F5: 698.46, "F#5": 739.99, "Gb5": 739.99,
+  G5: 783.99, "G#5": 830.61, "Ab5": 830.61,
 };
 
-// Mapping keyboard keys to notes
+// Mapping keyboard keys to notes (naturals with shift for sharps)
 const KEYBOARD_MAP: Record<string, string> = {
   a: "C4", s: "D4", d: "E4", f: "F4", g: "G4", h: "A4", j: "B4",
   k: "C5", l: "D5", ";": "E5",
+  // Shifted keys for sharps
+  A: "C#4", S: "D#4", F: "F#4", G: "G#4", H: "A#4",
+  K: "C#5", L: "D#5",
 };
 
-function generateSequence(length: number): string[] {
-  const allNotes = Object.keys(NOTE_POSITIONS);
+// Helper to get accidental symbol
+function getAccidental(note: string): string | null {
+  if (note.includes("#")) return "♯";
+  if (note.includes("b")) return "♭";
+  return null;
+}
+
+// Helper to get the base note name without octave
+function getNoteName(note: string): string {
+  return note.replace(/[0-9]/g, "");
+}
+
+// Notes available for each mode
+const NATURAL_NOTE_LIST = ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5", "D5", "E5", "F5", "G5"];
+const CHROMATIC_NOTE_LIST = [
+  "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4",
+  "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5", "G#5"
+];
+
+function generateSequence(length: number, includeAccidentals: boolean = false): string[] {
+  const noteList = includeAccidentals ? CHROMATIC_NOTE_LIST : NATURAL_NOTE_LIST;
   const sequence: string[] = [];
 
   for (let i = 0; i < length; i++) {
     if (sequence.length > 0 && Math.random() > 0.3) {
       // Prefer stepwise motion
-      const lastPos = NOTE_POSITIONS[sequence[sequence.length - 1]];
-      const step = Math.random() > 0.5 ? 1 : -1;
-      const newPos = Math.max(0, Math.min(allNotes.length - 1, lastPos + step));
-      sequence.push(allNotes[newPos]);
+      const lastIndex = noteList.indexOf(sequence[sequence.length - 1]);
+      if (lastIndex !== -1) {
+        const step = Math.random() > 0.5 ? 1 : -1;
+        const newIndex = Math.max(0, Math.min(noteList.length - 1, lastIndex + step));
+        sequence.push(noteList[newIndex]);
+      } else {
+        sequence.push(noteList[Math.floor(Math.random() * noteList.length)]);
+      }
     } else {
-      sequence.push(allNotes[Math.floor(Math.random() * allNotes.length)]);
+      sequence.push(noteList[Math.floor(Math.random() * noteList.length)]);
     }
   }
 
@@ -128,6 +170,18 @@ function StaffWithNotes({ notes, currentIndex, results }: {
                 opacity="0.5"
               />
             ))}
+            {/* Accidental */}
+            {getAccidental(note) && (
+              <text
+                x={65 + i * noteSpacing - 16}
+                y={y + 4}
+                fontSize="14"
+                fill={fillColor}
+                className="select-none"
+              >
+                {getAccidental(note)}
+              </text>
+            )}
             {/* Note */}
             <ellipse
               cx={65 + i * noteSpacing}
@@ -154,7 +208,8 @@ function StaffWithNotes({ notes, currentIndex, results }: {
 
 export function SightReading() {
   const [difficulty, setDifficulty] = useState<4 | 6 | 8>(4);
-  const [notes, setNotes] = useState<string[]>(() => generateSequence(4));
+  const [includeAccidentals, setIncludeAccidentals] = useState(false);
+  const [notes, setNotes] = useState<string[]>(() => generateSequence(4, false));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<(boolean | null)[]>([]);
   const [score, setScore] = useState({ correct: 0, total: 0 });
@@ -217,25 +272,35 @@ export function SightReading() {
   }, [currentIndex, notes, isComplete, playNote]);
 
   const nextSequence = useCallback(() => {
-    setNotes(generateSequence(difficulty));
+    setNotes(generateSequence(difficulty, includeAccidentals));
     setCurrentIndex(0);
     setResults([]);
     setIsComplete(false);
-  }, [difficulty]);
+  }, [difficulty, includeAccidentals]);
 
   const changeDifficulty = useCallback((newDiff: 4 | 6 | 8) => {
     setDifficulty(newDiff);
-    setNotes(generateSequence(newDiff));
+    setNotes(generateSequence(newDiff, includeAccidentals));
     setCurrentIndex(0);
     setResults([]);
     setIsComplete(false);
     setScore({ correct: 0, total: 0 });
-  }, []);
+  }, [includeAccidentals]);
+
+  const toggleAccidentals = useCallback((enabled: boolean) => {
+    setIncludeAccidentals(enabled);
+    setNotes(generateSequence(difficulty, enabled));
+    setCurrentIndex(0);
+    setResults([]);
+    setIsComplete(false);
+    setScore({ correct: 0, total: 0 });
+  }, [difficulty]);
 
   // Keyboard handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const note = KEYBOARD_MAP[e.key.toLowerCase()];
+      // Check for shifted key first (for sharps), then lowercase
+      const note = KEYBOARD_MAP[e.key] || KEYBOARD_MAP[e.key.toLowerCase()];
       if (note) {
         e.preventDefault();
         handleNoteInput(note);
@@ -259,19 +324,38 @@ export function SightReading() {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Difficulty */}
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-sm text-muted-foreground">Notes:</span>
-          {([4, 6, 8] as const).map((d) => (
+        {/* Difficulty & Mode */}
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Notes:</span>
+            {([4, 6, 8] as const).map((d) => (
+              <Button
+                key={d}
+                size="sm"
+                variant={difficulty === d ? "primary" : "outline"}
+                onClick={() => changeDifficulty(d)}
+              >
+                {d}
+              </Button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Accidentals:</span>
             <Button
-              key={d}
               size="sm"
-              variant={difficulty === d ? "primary" : "outline"}
-              onClick={() => changeDifficulty(d)}
+              variant={!includeAccidentals ? "primary" : "outline"}
+              onClick={() => toggleAccidentals(false)}
             >
-              {d}
+              Off
             </Button>
-          ))}
+            <Button
+              size="sm"
+              variant={includeAccidentals ? "primary" : "outline"}
+              onClick={() => toggleAccidentals(true)}
+            >
+              ♯/♭
+            </Button>
+          </div>
         </div>
 
         {/* Staff */}
@@ -282,23 +366,45 @@ export function SightReading() {
         {/* Instructions */}
         {!isComplete && (
           <p className="text-center text-sm text-muted-foreground">
-            Play note {currentIndex + 1} of {notes.length} using keyboard (A-L) or buttons below
+            Play note {currentIndex + 1} of {notes.length} using keyboard (A-L{includeAccidentals ? ", Shift+key for ♯" : ""}) or buttons below
           </p>
         )}
 
         {/* Note buttons */}
         {!isComplete && (
-          <div className="grid grid-cols-7 gap-2">
-            {NOTES.map((note) => (
-              <Button
-                key={note}
-                variant="outline"
-                onClick={() => handleNoteInput(note + "4")}
-                className="text-lg font-medium"
-              >
-                {note}
-              </Button>
-            ))}
+          <div className="space-y-2">
+            {/* Natural notes */}
+            <div className="grid grid-cols-7 gap-2">
+              {NATURAL_NOTES.map((note) => (
+                <Button
+                  key={note}
+                  variant="outline"
+                  onClick={() => handleNoteInput(note + "4")}
+                  className="text-lg font-medium"
+                >
+                  {note}
+                </Button>
+              ))}
+            </div>
+            {/* Sharp notes - only show when accidentals enabled */}
+            {includeAccidentals && (
+              <div className="grid grid-cols-7 gap-2">
+                {["C#", "D#", "", "F#", "G#", "A#", ""].map((note, i) => (
+                  note ? (
+                    <Button
+                      key={note}
+                      variant="outline"
+                      onClick={() => handleNoteInput(note + "4")}
+                      className="text-base font-medium"
+                    >
+                      {note.replace("#", "♯")}
+                    </Button>
+                  ) : (
+                    <div key={`empty-${i}`} />
+                  )
+                ))}
+              </div>
+            )}
           </div>
         )}
 

@@ -13,6 +13,13 @@ const CHORD_TYPES = [
   { name: "Minor 7th", symbol: "m7", intervals: [0, 3, 7, 10], description: "Mellow, soulful" },
   { name: "Dominant 7th", symbol: "7", intervals: [0, 4, 7, 10], description: "Bluesy, wants to resolve" },
   { name: "Suspended 4th", symbol: "sus4", intervals: [0, 5, 7], description: "Open, unresolved" },
+  { name: "Major 9th", symbol: "maj9", intervals: [0, 4, 7, 11, 14], description: "Rich, dreamy" },
+  { name: "Minor 9th", symbol: "m9", intervals: [0, 3, 7, 10, 14], description: "Smooth, soulful" },
+  { name: "Dominant 9th", symbol: "9", intervals: [0, 4, 7, 10, 14], description: "Funky, R&B" },
+  { name: "11th", symbol: "11", intervals: [0, 4, 7, 10, 14, 17], description: "Complex, jazzy" },
+  { name: "Minor 11th", symbol: "m11", intervals: [0, 3, 7, 10, 14, 17], description: "Deep, modal" },
+  { name: "13th", symbol: "13", intervals: [0, 4, 7, 10, 14, 21], description: "Full, orchestral" },
+  { name: "Minor 13th", symbol: "m13", intervals: [0, 3, 7, 10, 14, 21], description: "Lush, cinematic" },
 ];
 
 const ROOT_NOTES = ["C", "D", "E", "F", "G", "A", "B"];
@@ -57,16 +64,39 @@ function ChordDiagram({ intervals }: { intervals: number[] }) {
 }
 
 function PianoChord({ intervals }: { intervals: number[] }) {
-  const keys = Array.from({ length: 13 }, (_, i) => i);
-  const whiteKeyIndices = [0, 2, 4, 5, 7, 9, 11, 12];
-  const blackKeyIndices = [1, 3, 6, 8, 10];
+  // Extended piano for 9th, 11th, 13th chords (2 octaves)
+  const hasExtended = intervals.some(i => i > 12);
+  const octaves = hasExtended ? 2 : 1;
+  const totalKeys = octaves * 12 + 1;
+
+  // Build white key indices for multiple octaves
+  const baseWhiteKeys = [0, 2, 4, 5, 7, 9, 11];
+  const whiteKeyIndices: number[] = [];
+  for (let oct = 0; oct < octaves; oct++) {
+    baseWhiteKeys.forEach(k => whiteKeyIndices.push(k + oct * 12));
+  }
+  whiteKeyIndices.push(octaves * 12); // Final C
+
+  // Black key positions (relative to white keys)
+  const baseBlackKeys = [1, 3, 6, 8, 10];
+  const blackKeyData: { note: number; pos: number }[] = [];
+  for (let oct = 0; oct < octaves; oct++) {
+    [1, 2, 4, 5, 6].forEach((pos, i) => {
+      blackKeyData.push({
+        note: baseBlackKeys[i] + oct * 12,
+        pos: pos + oct * 7
+      });
+    });
+  }
+
+  const checkNote = (note: number) => intervals.includes(note) || intervals.includes(note % 12);
 
   return (
-    <div className="relative h-20 w-64 mx-auto">
+    <div className={`relative h-20 mx-auto ${hasExtended ? "w-full max-w-md" : "w-64"}`}>
       {/* White keys */}
       <div className="flex h-full">
         {whiteKeyIndices.map((note, i) => {
-          const isInChord = intervals.includes(note % 12) || (note === 12 && intervals.includes(0));
+          const isInChord = checkNote(note);
           return (
             <div
               key={i}
@@ -78,14 +108,13 @@ function PianoChord({ intervals }: { intervals: number[] }) {
         })}
       </div>
       {/* Black keys */}
-      {[1, 2, 4, 5, 6].map((pos, i) => {
-        const note = blackKeyIndices[i];
-        const isInChord = intervals.includes(note);
-        const leftPercent = (pos / 8) * 100 + 6;
+      {blackKeyData.map(({ note, pos }, i) => {
+        const isInChord = checkNote(note);
+        const leftPercent = (pos / (whiteKeyIndices.length)) * 100 + (100 / whiteKeyIndices.length / 2) - 5;
         return (
           <div
             key={i}
-            className={`absolute top-0 w-[10%] h-12 rounded-b-sm transition-colors ${
+            className={`absolute top-0 w-[8%] h-12 rounded-b-sm transition-colors ${
               isInChord ? "bg-primary" : "bg-gray-900"
             }`}
             style={{ left: `${leftPercent}%` }}
@@ -148,7 +177,7 @@ export function ChordQuiz() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
           {CHORD_TYPES.map((chord) => {
             const isSelected = selected === chord.name;
             const isAnswer = question.chordType.name === chord.name;
