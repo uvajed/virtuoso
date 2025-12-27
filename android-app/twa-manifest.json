@@ -1,0 +1,69 @@
+{
+  "packageId": "com.virtuoso.musicpractice",
+  "host": "music-virtuoso.vercel.app",
+  "name": "Virtuoso - Music Practice",
+  "launcherName": "Virtuoso",
+  "display": "standalone",
+  "themeColor": "#1DB954",
+  "navigationColor": "#121212",
+  "navigationColorDark": "#121212",
+  "navigationDividerColor": "#121212",
+  "navigationDividerColorDark": "#121212",
+  "backgroundColor": "#121212",
+  "enableNotifications": true,
+  "startUrl": "/dashboard",
+  "iconUrl": "https://music-virtuoso.vercel.app/icons/icon-512x512.png",
+  "maskableIconUrl": "https://music-virtuoso.vercel.app/icons/icon-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "virtuoso"
+  },
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "shortcuts": [
+    {
+      "name": "Ear Training",
+      "shortName": "Ear Training",
+      "url": "/ear-training",
+      "icons": [
+        {
+          "src": "https://music-virtuoso.vercel.app/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Piano",
+      "shortName": "Piano",
+      "url": "/instruments/piano",
+      "icons": [
+        {
+          "src": "https://music-virtuoso.vercel.app/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://music-virtuoso.vercel.app/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": false
+    },
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://music-virtuoso.vercel.app/",
+  "minSdkVersion": 23,
+  "orientation": "portrait",
+  "fingerprints": []
+}
