@@ -3,6 +3,9 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
+// Force Node.js runtime (bcryptjs doesn't work on Edge)
+export const runtime = "nodejs";
+
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
@@ -68,8 +71,9 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Registration error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "An error occurred during registration" },
+      { error: `Registration failed: ${errorMessage}` },
       { status: 500 }
     );
   }
