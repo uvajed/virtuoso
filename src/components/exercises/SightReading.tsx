@@ -6,9 +6,22 @@ import { CheckCircle, XCircle, RefreshCw, Play } from "lucide-react";
 
 const NOTES = ["C", "D", "E", "F", "G", "A", "B"];
 
+// Treble clef note positions (0 = bottom line E4, each step = half line spacing)
+// Lines (bottom to top): E4, G4, B4, D5, F5
+// Spaces: F4, A4, C5, E5
 const NOTE_POSITIONS: Record<string, number> = {
-  C4: 0, D4: 1, E4: 2, F4: 3, G4: 4, A4: 5, B4: 6,
-  C5: 7, D5: 8, E5: 9, F5: 10, G5: 11,
+  C4: -2,  // Ledger line below staff
+  D4: -1,  // Space below staff
+  E4: 0,   // Bottom line (1st line)
+  F4: 1,   // 1st space
+  G4: 2,   // 2nd line
+  A4: 3,   // 2nd space
+  B4: 4,   // 3rd line (middle)
+  C5: 5,   // 3rd space
+  D5: 6,   // 4th line
+  E5: 7,   // 4th space
+  F5: 8,   // 5th line (top)
+  G5: 9,   // Above staff
 };
 
 const NOTE_FREQUENCIES: Record<string, number> = {
@@ -85,15 +98,17 @@ function StaffWithNotes({ notes, currentIndex, results }: {
         else if (result === false) fillColor = "#ef4444";
         else if (isActive) fillColor = "hsl(var(--primary))";
 
-        // Ledger lines
+        // Ledger lines for notes below staff (C4 at pos -2)
         const ledgerLines = [];
-        if (pos < 2) {
-          for (let l = 0; l >= pos - 1; l -= 2) {
+        if (pos <= -2) {
+          // C4 needs ledger line at position -2
+          for (let l = -2; l >= pos; l -= 2) {
             ledgerLines.push(staffTop + 40 - (l * lineSpacing / 2));
           }
         }
-        if (pos > 10) {
-          for (let l = 12; l <= pos + 1; l += 2) {
+        // Ledger lines for notes above staff (G5 at pos 9, etc.)
+        if (pos >= 10) {
+          for (let l = 10; l <= pos; l += 2) {
             ledgerLines.push(staffTop + 40 - (l * lineSpacing / 2));
           }
         }
