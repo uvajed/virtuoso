@@ -1,12 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.virtuoso.musicpractice",
-      "sha256_cert_fingerprints": [
-        "REPLACE_WITH_YOUR_SHA256_FINGERPRINT"
-      ]
-    }
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.music_virtuoso.twa",
+    "sha256_cert_fingerprints": ["AC:EF:27:D3:7C:35:DE:81:18:8C:6B:40:C3:19:A2:E1:E7:58:6E:FA:DC:F3:05:6F:EC:00:05:87:75:E7:DA:80"]
   }
-]
+}]
