@@ -79,17 +79,17 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-sm">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary">
-              <Music className="h-5 w-5 text-black" />
+              <Music className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-bold text-xl">Virtuoso</span>
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/register">
-              <span className="text-muted-foreground hover:text-white font-bold text-sm transition-colors hidden sm:block">
+              <span className="text-muted-foreground hover:text-foreground font-bold text-sm transition-colors hidden sm:block">
                 Sign up
               </span>
             </Link>
@@ -103,9 +103,9 @@ export default async function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-to-b from-[#1a1a1a] via-[#121212] to-background">
+      <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-to-b from-muted/50 via-background to-background">
         <div className="container mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border text-sm font-medium mb-8">
             <div className="flex items-end gap-0.5 h-3">
               <div className="w-0.5 bg-primary rounded-full animate-pulse" style={{ height: '6px' }} />
               <div className="w-0.5 bg-primary rounded-full animate-pulse" style={{ height: '10px', animationDelay: '0.2s' }} />
@@ -146,7 +146,7 @@ export default async function HomePage() {
               return (
                 <div
                   key={feature.title}
-                  className="group bg-[#181818] rounded-lg p-6 hover:bg-[#282828] transition-all duration-300 cursor-pointer"
+                  className="group bg-card rounded-lg p-6 hover:bg-card-hover transition-all duration-300 cursor-pointer"
                 >
                   <div className={`w-14 h-14 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-5 group-hover:scale-105 transition-transform`}>
                     <Icon className="h-7 w-7 text-white" />
@@ -157,7 +157,7 @@ export default async function HomePage() {
                   </p>
                   <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-                      <Play className="h-5 w-5 text-black ml-0.5" fill="black" />
+                      <Play className="h-5 w-5 text-primary-foreground ml-0.5" fill="currentColor" />
                     </div>
                   </div>
                 </div>
@@ -184,16 +184,16 @@ export default async function HomePage() {
                 {benefits.map((benefit) => (
                   <li key={benefit} className="flex items-start gap-4">
                     <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="h-3.5 w-3.5 text-black" strokeWidth={3} />
+                      <Check className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={3} />
                     </div>
                     <span className="text-lg">{benefit}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="bg-gradient-to-br from-[#282828] to-[#181818] rounded-xl p-8">
+            <div className="bg-gradient-to-br from-muted to-card rounded-xl p-8">
               <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-[#121212] rounded-lg hover:bg-[#1a1a1a] transition-colors">
+                <div className="flex items-center gap-4 p-4 bg-background rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
                     <Flame className="h-6 w-6 text-white" />
                   </div>
@@ -204,7 +204,7 @@ export default async function HomePage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-[#121212] rounded-lg hover:bg-[#1a1a1a] transition-colors">
+                <div className="flex items-center gap-4 p-4 bg-background rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
                     <Trophy className="h-6 w-6 text-white" />
                   </div>
@@ -215,9 +215,9 @@ export default async function HomePage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-[#121212] rounded-lg hover:bg-[#1a1a1a] transition-colors">
+                <div className="flex items-center gap-4 p-4 bg-background rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center">
-                    <Headphones className="h-6 w-6 text-black" />
+                    <Headphones className="h-6 w-6 text-primary-foreground" />
                   </div>
                   <div>
                     <p className="font-bold">Ear Training Complete</p>
@@ -233,7 +233,7 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-t from-[#1a1a1a] to-background">
+      <section className="py-24 bg-gradient-to-t from-muted/50 to-background">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-5xl font-black">
             Ready to become a better musician?
@@ -254,14 +254,22 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-10 border-t border-white/10">
+      <footer className="py-10 border-t border-border">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white">
-                <Music className="h-4 w-4 text-black" />
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
+                <Music className="h-4 w-4 text-primary-foreground" />
               </div>
               <span className="font-bold">Virtuoso</span>
+            </div>
+            <div className="flex items-center gap-6">
+              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Terms of Service
+              </Link>
             </div>
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} Virtuoso. All rights reserved.
