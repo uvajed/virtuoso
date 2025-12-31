@@ -16,6 +16,7 @@ import {
   Home,
   Library,
   TrendingUp,
+  FileMusic,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ const navigation = [
   { name: "Home", href: "/dashboard", icon: Home },
   { name: "Music Theory", href: "/theory", icon: BookOpen },
   { name: "Ear Training", href: "/ear-training", icon: Headphones },
+  { name: "Reading", href: "/reading", icon: FileMusic },
   {
     name: "Instruments",
     href: "/instruments",
@@ -59,7 +61,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-40 h-screen w-[280px] bg-black transition-transform duration-200 ease-in-out flex flex-col",
+          "fixed top-0 left-0 z-40 h-screen w-[280px] bg-card transition-transform duration-200 ease-in-out flex flex-col border-r border-border",
           "md:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
@@ -68,14 +70,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="p-6 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary">
-              <Music className="h-5 w-5 text-black" />
+              <Music className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-bold text-xl text-white">Virtuoso</span>
+            <span className="font-bold text-xl text-foreground">Virtuoso</span>
           </Link>
           {/* Mobile close button */}
           <button
             onClick={onClose}
-            className="md:hidden p-2 rounded-full hover:bg-white/10"
+            className="md:hidden p-2 rounded-full hover:bg-muted"
           >
             <X className="h-5 w-5" />
           </button>
@@ -97,13 +99,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   className={cn(
                     "flex items-center gap-4 px-4 py-3 rounded-md text-sm font-bold transition-all group",
                     isActive
-                      ? "text-white bg-[#282828]"
-                      : "text-muted-foreground hover:text-white"
+                      ? "text-foreground bg-muted"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <Icon className={cn(
                     "h-6 w-6 transition-colors",
-                    isActive ? "text-white" : "text-muted-foreground group-hover:text-white"
+                    isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
                   )} />
                   {item.name}
                   {isActive && (
@@ -127,7 +129,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                             "flex items-center gap-3 px-4 py-2 rounded-md text-sm transition-all",
                             isChildActive
                               ? "text-primary font-bold"
-                              : "text-muted-foreground hover:text-white"
+                              : "text-muted-foreground hover:text-foreground"
                           )}
                         >
                           <ChildIcon className="h-4 w-4" />
@@ -143,7 +145,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* Footer with playing indicator */}
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 px-2">
             <div className="flex items-end gap-0.5 h-4">
               <div className="w-1 bg-primary rounded-full eq-bar" style={{ height: '8px' }} />

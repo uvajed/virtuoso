@@ -143,71 +143,15 @@ export function ScalePractice() {
     return NOTE_NAMES[(rootIndex + semitone) % 12];
   };
 
-  // Piano keyboard visualization
-  const renderPiano = () => {
-    const keys = [];
-    const scaleNotes = currentScale.intervals.map(i => (rootIndex + i) % 12);
-
-    for (let i = 0; i < 15; i++) {
-      const noteIndex = i % 12;
-      const isBlack = [1, 3, 6, 8, 10].includes(noteIndex);
-      const isInScale = scaleNotes.includes(noteIndex);
-      const scalePosition = scaleNotes.indexOf(noteIndex);
-      const isActive = activeNote !== null && scaleNotes[activeNote % scaleNotes.length] === noteIndex;
-
-      if (!isBlack) {
-        keys.push(
-          <div
-            key={`white-${i}`}
-            onClick={() => playNote(i)}
-            className={`relative w-10 h-32 border border-gray-300 rounded-b cursor-pointer transition-colors ${
-              isActive ? "bg-primary" : isInScale ? "bg-primary/30" : "bg-white hover:bg-gray-100"
-            }`}
-          >
-            {isInScale && showFingering && (
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-bold">
-                {hand === "right"
-                  ? currentScale.fingering.right[scalePosition]
-                  : currentScale.fingering.left[scalePosition]
-                }
-              </div>
-            )}
-            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-xs ${isActive ? "text-white" : ""}`}>
-              {NOTE_NAMES[noteIndex]}
-            </div>
-          </div>
-        );
-      }
-    }
-    return keys;
+  // Check if a note has a black key after it
+  const hasBlackKeyAfter = (noteIndex: number) => {
+    // Black keys come after C, D, F, G, A (indices 0, 2, 5, 7, 9)
+    return [0, 2, 5, 7, 9].includes(noteIndex);
   };
 
-  const renderBlackKeys = () => {
-    const keys = [];
-    const scaleNotes = currentScale.intervals.map(i => (rootIndex + i) % 12);
-    const blackPositions = [1, 2, 4, 5, 6]; // Positions of black keys relative to white keys
-
-    for (let i = 0; i < 10; i++) {
-      const noteIndex = [1, 3, 6, 8, 10][i % 5];
-      if (i >= 10) continue;
-
-      const isInScale = scaleNotes.includes(noteIndex);
-      const isActive = activeNote !== null && scaleNotes[activeNote % scaleNotes.length] === noteIndex;
-      const pos = blackPositions[i % 5];
-
-      keys.push(
-        <div
-          key={`black-${i}`}
-          onClick={() => playNote(noteIndex)}
-          className={`absolute w-6 h-20 rounded-b cursor-pointer transition-colors ${
-            isActive ? "bg-primary" : isInScale ? "bg-primary/70" : "bg-gray-900 hover:bg-gray-700"
-          }`}
-          style={{ left: `${pos * 40 + 28}px` }}
-        />
-      );
-    }
-    return keys;
-  };
+  // Get white keys to display (C through B, one octave)
+  const whiteKeyNotes = [0, 2, 4, 5, 7, 9, 11]; // C, D, E, F, G, A, B
+  const scaleNotes = currentScale.intervals.map(i => (rootIndex + i) % 12);
 
   return (
     <Card>
@@ -274,11 +218,61 @@ export function ScalePractice() {
 
         {/* Piano */}
         <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
-          <div className="relative flex justify-center" style={{ minWidth: "400px" }}>
-            <div className="flex">
-              {renderPiano()}
+          <div className="flex justify-center">
+            <div className="relative flex">
+              {whiteKeyNotes.map((noteIndex, idx) => {
+                const isInScale = scaleNotes.includes(noteIndex);
+                const scalePosition = scaleNotes.indexOf(noteIndex);
+                const isActive = activeNote !== null && scaleNotes[activeNote % scaleNotes.length] === noteIndex;
+                const blackKeyIndex = noteIndex + 1;
+                const blackKeyInScale = scaleNotes.includes(blackKeyIndex);
+                const blackKeyActive = activeNote !== null && scaleNotes[activeNote % scaleNotes.length] === blackKeyIndex;
+                const blackScalePosition = scaleNotes.indexOf(blackKeyIndex);
+
+                return (
+                  <div key={idx} className="relative">
+                    {/* White key */}
+                    <div
+                      onClick={() => playNote(noteIndex)}
+                      className={`w-10 h-32 border border-gray-300 rounded-b cursor-pointer transition-colors ${
+                        isActive ? "bg-primary" : isInScale ? "bg-primary/30" : "bg-white hover:bg-gray-100"
+                      }`}
+                    >
+                      {isInScale && showFingering && (
+                        <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs font-bold text-primary">
+                          {hand === "right"
+                            ? currentScale.fingering.right[scalePosition]
+                            : currentScale.fingering.left[scalePosition]
+                          }
+                        </div>
+                      )}
+                      <div className={`absolute bottom-2 left-1/2 -translate-x-1/2 text-xs ${isActive ? "text-white" : "text-gray-600"}`}>
+                        {NOTE_NAMES[noteIndex]}
+                      </div>
+                    </div>
+                    {/* Black key (if applicable) */}
+                    {hasBlackKeyAfter(noteIndex) && idx < whiteKeyNotes.length - 1 && (
+                      <div
+                        onClick={() => playNote(blackKeyIndex)}
+                        className={`absolute top-0 w-6 h-20 rounded-b cursor-pointer transition-colors z-10 ${
+                          blackKeyActive ? "bg-primary" : blackKeyInScale ? "bg-primary/70" : "bg-gray-900 hover:bg-gray-700"
+                        }`}
+                        style={{ left: "27px" }}
+                      >
+                        {blackKeyInScale && showFingering && (
+                          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs font-bold text-white">
+                            {hand === "right"
+                              ? currentScale.fingering.right[blackScalePosition]
+                              : currentScale.fingering.left[blackScalePosition]
+                            }
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            {renderBlackKeys()}
           </div>
         </div>
 

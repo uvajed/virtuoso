@@ -3,13 +3,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Progress, Badge } from "@/components/ui";
 import { TrendingUp, Calendar, Target, Music, Headphones, Piano, Clock, Award } from "lucide-react";
-
-interface PracticeSession {
-  date: string;
-  minutes: number;
-  xp: number;
-  category: "theory" | "ear-training" | "instrument";
-}
+import { getProgress, type ProgressData } from "@/lib/progress";
 
 interface SkillProgress {
   name: string;
@@ -19,43 +13,6 @@ interface SkillProgress {
   icon: typeof Music;
   color: string;
 }
-
-// Generate mock data based on localStorage or defaults
-const generateMockData = (): { sessions: PracticeSession[]; skills: SkillProgress[] } => {
-  const today = new Date();
-  const sessions: PracticeSession[] = [];
-
-  // Generate last 7 days of practice data
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split("T")[0];
-
-    // Random practice time (0-60 mins per day, some days might be 0)
-    const practiced = Math.random() > 0.3;
-    if (practiced) {
-      const categories: ("theory" | "ear-training" | "instrument")[] = ["theory", "ear-training", "instrument"];
-      const randomCategories = categories.filter(() => Math.random() > 0.5);
-
-      randomCategories.forEach(category => {
-        sessions.push({
-          date: dateStr,
-          minutes: Math.floor(Math.random() * 30) + 5,
-          xp: Math.floor(Math.random() * 50) + 10,
-          category,
-        });
-      });
-    }
-  }
-
-  const skills: SkillProgress[] = [
-    { name: "Music Theory", level: 3, xp: 450, xpToNext: 500, icon: Music, color: "bg-blue-500" },
-    { name: "Ear Training", level: 2, xp: 280, xpToNext: 400, icon: Headphones, color: "bg-purple-500" },
-    { name: "Instruments", level: 2, xp: 180, xpToNext: 400, icon: Piano, color: "bg-emerald-500" },
-  ];
-
-  return { sessions, skills };
-};
 
 // Simple bar chart component
 function BarChart({ data, maxValue }: { data: { label: string; value: number }[]; maxValue: number }) {
@@ -119,21 +76,83 @@ function CircularProgress({ value, max, size = 80, strokeWidth = 8 }: { value: n
 }
 
 export function ProgressDashboard() {
-  const [data, setData] = useState<{ sessions: PracticeSession[]; skills: SkillProgress[] } | null>(null);
+  const [progress, setProgress] = useState<ProgressData | null>(null);
   const [timeRange, setTimeRange] = useState<"week" | "month">("week");
 
   useEffect(() => {
-    // In a real app, this would fetch from the API
-    setData(generateMockData());
+    // Get real progress from localStorage
+    setProgress(getProgress());
+
+    // Listen for progress updates
+    const handleProgressUpdate = (e: CustomEvent<ProgressData>) => {
+      setProgress(e.detail);
+    };
+
+    window.addEventListener("virtuoso-progress-update", handleProgressUpdate as EventListener);
+    return () => {
+      window.removeEventListener("virtuoso-progress-update", handleProgressUpdate as EventListener);
+    };
   }, []);
 
-  if (!data) {
+  if (!progress) {
     return <div className="animate-pulse h-96 bg-card rounded-lg" />;
   }
 
-  const { sessions, skills } = data;
+  // Calculate stats from real progress
+  const totalXP =
+    (progress.exercisesCompleted * 10) +
+    (progress.theoryCorrect * 5) +
+    (progress.earTrainingCorrect * 5) +
+    (progress.currentStreak * 20);
 
-  // Calculate weekly stats
+  const totalMinutes = progress.practiceMinutes;
+  const activeDays = progress.currentStreak;
+  const avgMinutesPerDay = activeDays > 0 ? Math.round(totalMinutes / Math.max(activeDays, 1)) : 0;
+
+  // Calculate skill levels based on actual progress
+  const calculateLevel = (xp: number): { level: number; currentXp: number; xpToNext: number } => {
+    const level = Math.floor(Math.sqrt(xp / 50)) + 1;
+    const xpForCurrentLevel = Math.pow(level - 1, 2) * 50;
+    const xpForNextLevel = Math.pow(level, 2) * 50;
+    return {
+      level,
+      currentXp: xp - xpForCurrentLevel,
+      xpToNext: xpForNextLevel - xpForCurrentLevel,
+    };
+  };
+
+  const theoryStats = calculateLevel(progress.theoryCorrect * 10);
+  const earStats = calculateLevel((progress.earTrainingCorrect + progress.intervalsCorrect + progress.chordsCorrect) * 5);
+  const practiceStats = calculateLevel(progress.exercisesCompleted * 8);
+
+  const skills: SkillProgress[] = [
+    {
+      name: "Music Theory",
+      level: theoryStats.level,
+      xp: theoryStats.currentXp,
+      xpToNext: theoryStats.xpToNext,
+      icon: Music,
+      color: "bg-blue-500"
+    },
+    {
+      name: "Ear Training",
+      level: earStats.level,
+      xp: earStats.currentXp,
+      xpToNext: earStats.xpToNext,
+      icon: Headphones,
+      color: "bg-purple-500"
+    },
+    {
+      name: "Practice",
+      level: practiceStats.level,
+      xp: practiceStats.currentXp,
+      xpToNext: practiceStats.xpToNext,
+      icon: Piano,
+      color: "bg-emerald-500"
+    },
+  ];
+
+  // Weekly chart - show last 7 days based on whether user has practiced
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const today = new Date();
   const chartData = [];
@@ -144,25 +163,31 @@ export function ProgressDashboard() {
     const dateStr = date.toISOString().split("T")[0];
     const dayName = weekDays[date.getDay()];
 
-    const dayMinutes = sessions
-      .filter(s => s.date === dateStr)
-      .reduce((sum, s) => sum + s.minutes, 0);
+    // Check if this was a practice day
+    let dayMinutes = 0;
+    if (progress.lastPracticeDate === dateStr) {
+      // Today or last practice day - show some activity
+      dayMinutes = Math.max(Math.round(totalMinutes / Math.max(activeDays, 1)), 5);
+    }
 
     chartData.push({ label: dayName, value: dayMinutes });
   }
 
-  const maxMinutes = Math.max(...chartData.map(d => d.value), 60);
-  const totalMinutes = chartData.reduce((sum, d) => sum + d.value, 0);
-  const totalXP = sessions.reduce((sum, s) => sum + s.xp, 0);
-  const activeDays = new Set(sessions.map(s => s.date)).size;
-  const avgMinutesPerDay = activeDays > 0 ? Math.round(totalMinutes / activeDays) : 0;
+  // If user has practiced today, update today's bar
+  if (progress.lastPracticeDate === today.toISOString().split("T")[0]) {
+    chartData[6].value = Math.max(Math.round(totalMinutes / Math.max(activeDays, 1)), 10);
+  }
 
-  // Category breakdown
+  const maxMinutes = Math.max(...chartData.map(d => d.value), 30);
+
+  // Category breakdown based on actual data
   const categoryMinutes = {
-    theory: sessions.filter(s => s.category === "theory").reduce((sum, s) => sum + s.minutes, 0),
-    "ear-training": sessions.filter(s => s.category === "ear-training").reduce((sum, s) => sum + s.minutes, 0),
-    instrument: sessions.filter(s => s.category === "instrument").reduce((sum, s) => sum + s.minutes, 0),
+    theory: Math.round((progress.theoryCorrect / Math.max(progress.exercisesCompleted, 1)) * totalMinutes) || 0,
+    earTraining: Math.round(((progress.earTrainingCorrect + progress.intervalsCorrect + progress.chordsCorrect) / Math.max(progress.exercisesCompleted, 1)) * totalMinutes) || 0,
+    practice: totalMinutes - Math.round((progress.theoryCorrect / Math.max(progress.exercisesCompleted, 1)) * totalMinutes) || 0,
   };
+
+  const hasAnyProgress = progress.exercisesCompleted > 0 || totalMinutes > 0 || totalXP > 0;
 
   return (
     <div className="space-y-6">
@@ -194,6 +219,20 @@ export function ProgressDashboard() {
           </button>
         </div>
       </div>
+
+      {!hasAnyProgress && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="pt-6">
+            <div className="text-center py-4">
+              <Music className="h-12 w-12 mx-auto text-primary mb-3" />
+              <h3 className="font-semibold text-lg">Start Your Musical Journey!</h3>
+              <p className="text-muted-foreground mt-1">
+                Complete exercises in Theory, Ear Training, or Instruments to track your progress here.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -232,8 +271,8 @@ export function ProgressDashboard() {
                 <Calendar className="h-5 w-5 text-emerald-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{activeDays}</p>
-                <p className="text-xs text-muted-foreground">Active Days</p>
+                <p className="text-2xl font-bold">{progress.exercisesCompleted}</p>
+                <p className="text-xs text-muted-foreground">Exercises Done</p>
               </div>
             </div>
           </CardContent>
@@ -246,8 +285,8 @@ export function ProgressDashboard() {
                 <Target className="h-5 w-5 text-orange-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{avgMinutesPerDay}m</p>
-                <p className="text-xs text-muted-foreground">Avg/Day</p>
+                <p className="text-2xl font-bold">{progress.currentStreak}</p>
+                <p className="text-xs text-muted-foreground">Day Streak</p>
               </div>
             </div>
           </CardContent>
@@ -257,8 +296,12 @@ export function ProgressDashboard() {
       {/* Practice Chart */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Practice Time</CardTitle>
-          <CardDescription>Minutes practiced each day this week</CardDescription>
+          <CardTitle className="text-lg">Practice Activity</CardTitle>
+          <CardDescription>
+            {hasAnyProgress
+              ? "Your practice activity this week"
+              : "Complete exercises to see your weekly activity"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart data={chartData} maxValue={maxMinutes} />
@@ -287,7 +330,7 @@ export function ProgressDashboard() {
                       <Badge variant="secondary">Level {skill.level}</Badge>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Progress value={(skill.xp / skill.xpToNext) * 100} className="flex-1" />
+                      <Progress value={skill.xpToNext > 0 ? (skill.xp / skill.xpToNext) * 100 : 0} className="flex-1" />
                       <span className="text-xs text-muted-foreground w-16 text-right">
                         {skill.xp}/{skill.xpToNext} XP
                       </span>
@@ -299,66 +342,79 @@ export function ProgressDashboard() {
           </CardContent>
         </Card>
 
-        {/* Category Breakdown */}
+        {/* Exercise Stats */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Practice Breakdown</CardTitle>
-            <CardDescription>Time spent in each category</CardDescription>
+            <CardTitle className="text-lg">Exercise Stats</CardTitle>
+            <CardDescription>Correct answers by category</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center gap-8">
-              {totalMinutes > 0 ? (
-                <>
-                  <CircularProgress
-                    value={totalMinutes}
-                    max={120}
-                    size={100}
-                    strokeWidth={10}
-                  />
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-blue-500" />
-                      <span className="text-sm">Theory: {categoryMinutes.theory}m</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-purple-500" />
-                      <span className="text-sm">Ear Training: {categoryMinutes["ear-training"]}m</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                      <span className="text-sm">Instruments: {categoryMinutes.instrument}m</span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No practice data yet</p>
-                  <p className="text-sm mt-1">Start practicing to see your breakdown!</p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-500" />
+                  <span className="text-sm">Theory Questions</span>
                 </div>
-              )}
+                <span className="font-medium">{progress.theoryCorrect} correct</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-purple-500" />
+                  <span className="text-sm">Ear Training</span>
+                </div>
+                <span className="font-medium">{progress.earTrainingCorrect} correct</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <span className="text-sm">Intervals</span>
+                </div>
+                <span className="font-medium">{progress.intervalsCorrect} correct</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-500" />
+                  <span className="text-sm">Chords</span>
+                </div>
+                <span className="font-medium">{progress.chordsCorrect} correct</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <span className="text-sm">Perfect Scores</span>
+                </div>
+                <span className="font-medium">{progress.perfectScores}</span>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Weekly Goal Progress */}
+      {/* Streak Info */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Weekly Goal</CardTitle>
-              <CardDescription>Practice 2 hours this week to stay on track</CardDescription>
+              <CardTitle className="text-lg">Practice Streak</CardTitle>
+              <CardDescription>Keep practicing daily to maintain your streak!</CardDescription>
             </div>
-            <Badge variant={totalMinutes >= 120 ? "default" : "secondary"}>
-              {totalMinutes} / 120 min
+            <Badge variant={progress.currentStreak >= 7 ? "default" : "secondary"}>
+              {progress.currentStreak} day{progress.currentStreak !== 1 ? "s" : ""}
             </Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <Progress value={(totalMinutes / 120) * 100} size="lg" />
-          {totalMinutes >= 120 && (
-            <p className="text-sm text-primary mt-2 font-medium">
-              Goal achieved! Great work this week!
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Progress value={Math.min((progress.currentStreak / 7) * 100, 100)} size="lg" />
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {progress.currentStreak >= 7 ? "1 week!" : `${7 - progress.currentStreak} days to 1 week`}
+            </span>
+          </div>
+          {progress.longestStreak > progress.currentStreak && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Your longest streak: {progress.longestStreak} days
             </p>
           )}
         </CardContent>

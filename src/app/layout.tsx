@@ -84,7 +84,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <footer className="fixed bottom-2 left-1/2 -translate-x-1/2 text-xs opacity-40 z-10">
+            Powered by <a href="https://www.e-studios.net" target="_blank" rel="noopener" className="underline">e·studios</a>
+          </footer>
+        </Providers>
         {/* Service Worker Registration */}
         <script
           dangerouslySetInnerHTML={{

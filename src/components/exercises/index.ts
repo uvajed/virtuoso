@@ -13,3 +13,5 @@ export { VocalRangeTest } from "./VocalRangeTest";
 export { RhythmTrainer } from "./RhythmTrainer";
 export { ScalePractice } from "./ScalePractice";
 export { ChordProgressions } from "./ChordProgressions";
+export { ChordPractice } from "./ChordPractice";
+export { FingerExercises } from "./FingerExercises";
