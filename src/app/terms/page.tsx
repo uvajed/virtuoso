@@ -165,10 +165,10 @@ export default function TermsPage() {
                   If you have questions about these Terms of Service, please contact us at:
                 </p>
                 <p className="text-muted-foreground mt-2">
-                  <strong>Email:</strong> support@virtuoso-app.com<br />
+                  <strong>Email:</strong> contact@e-studios.net<br />
                   <strong>GitHub:</strong>{" "}
-                  <a href="https://github.com/virtuoso-app/virtuoso" className="text-primary hover:underline">
-                    github.com/virtuoso-app/virtuoso
+                  <a href="https://github.com/uvajed/virtuoso" className="text-primary hover:underline">
+                    github.com/uvajed/virtuoso
                   </a>
                 </p>
               </section>
