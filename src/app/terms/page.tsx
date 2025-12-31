@@ -28,7 +28,7 @@ export default function TermsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Terms of Service</CardTitle>
-              <p className="text-muted-foreground">Last updated: December 30, 2024</p>
+              <p className="text-muted-foreground">Last updated: December 31, 2025</p>
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none space-y-6">
               <section>
